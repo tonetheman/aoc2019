@@ -18,7 +18,9 @@
       ;; pass the new number as n
       ;; pass a list with the new number stuck on the front
       ;; i calculated the number twice meh
-      (listcalc (calc n) (cons (calc n) acc))
+      (let ([tmpv (calc n)])
+	(listcalc tmpv (cons tmpv acc))
+	)
       )
   )
 

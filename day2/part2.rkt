@@ -66,4 +66,12 @@
     (map string->number (string-split s ","))
 )
 
-(println (run-program 12 2 inp))
+(for ([noun 100])
+    (for ([verb 100])
+        (if (= (run-program noun verb inp) 19690720)
+            (println (+ (* 100 noun) verb))
+            '()
+        )
+    )
+)
+;;(println (run-program 12 2 inp))

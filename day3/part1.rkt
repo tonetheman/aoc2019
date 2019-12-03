@@ -4,60 +4,87 @@
 
 (define data (string-split s ","))
 (printf "input data is ~a\n" data)
-(struct pos (x y))
 
 (define (moving-right? n) (char=? n #\R))
 (define (moving-left? n) (char=? n #\L))
 (define (moving-up? n) (char=? n #\U))
 (define (moving-down? n) (char=? n #\D))
 
-;; move in a direction
-;; cp - current position
-;; n - number of steps
-;; direction
-;; acc - accumlulator
-(define (mm cp n direction acc)
-    (printf "in mm cp is ~a\n" cp)
-	(if (moving-right? direction)
-		(let ([tmp '()])
-			(for ([i n])
-				(set! tmp (append (list (list i (pos-y cp)))  tmp))
-			)
-		tmp
-		)
-		#f
-	)
+(define (generate-up-steps startpos direction stepcount)
+    (define tmp '())
+    (define x (first (first startpos)))
+    (define y (second (first startpos)))
+
+    (for ([i stepcount])
+        (set! tmp (append (list (list x (+ y i)) tmp)))
+    )
+    tmp
+)
+(define (generate-down-steps startpos direction stepcount)
+    (define tmp '())
+    (define x (first (first startpos)))
+    (define y (second (first startpos)))
+
+    (for ([i stepcount])
+        (set! tmp (append (list (list x (- y i)) tmp)))
+    )
+    tmp
 )
 
-(define (makepath-acc inp acc)
-    (if (empty? inp)
-        acc
-        (begin
-            (let ([cp (first inp)])
-                (define dir-char (string-ref cp 0)) ;; direction
-                (define dir-dist (string->number (substring cp 1))) ;; num steps
-                (define current (first acc)) ;; this is the current position
-                (if (moving-right? dir-char)
-                    (begin
-                        (printf "GOT R with dist ~a\n" dir-dist)
-                        (let ([crud (mm cp dir-dist #\R #f)])
-                            (printf "crud ~a\n" crud)
-                        )
-                    )
-                    #f
-                )
-                (if (moving-left? dir-char)
-                    #f
-                    #f
-                )
-                (makepath-acc (rest inp) acc)
-            )
+(define (generate-right-steps startpos direction stepcount)
+    (define tmp '())
+    (define x (first (first startpos)))
+    (define y (second (first startpos)))
+    (for ([i stepcount])
+        (set! tmp (append (list (list (+ i x) y)) tmp))
+    )
+    tmp
+)
+(define (generate-left-steps startpos direction stepcount)
+    (define tmp '())
+    (define x (first (first startpos)))
+    (define y (second (first startpos)))
+    (for ([i stepcount])
+        (set! tmp (append (list (list (- i x) y)) tmp))
+    )
+    tmp
+)
+
+;; start at zero
+(define startpos (list '(0 0)))
+
+;; (println startpos)
+(for ([step-data data])
+    (let ([direction (string-ref step-data 0)]
+            [stepcount (string->number (substring step-data 1))])
+        ;; (printf "~a\n" step-data)
+        ;; (printf "~a\n" direction)
+        (cond
+            [(moving-right? direction)
+            (set! startpos (append (generate-right-steps startpos direction stepcount) startpos))
+            (printf "startpos is ~a\n" startpos)
+            #f
+            ]
+            [(moving-left? direction)
+            (set! startpos (append (generate-left-steps startpos direction stepcount) startpos))
+            (printf "startpos is ~a\n" startpos)
+            #f
+            ]
+
+            [(moving-up? direction)
+            (set! startpos (append (generate-up-steps startpos direction stepcount) startpos))
+            (printf "startpos is ~a\n" startpos)
+            #f
+            ]
+            [(moving-down? direction)
+            (set! startpos (append (generate-down-steps startpos direction stepcount) startpos))
+            (printf "startpos is ~a\n" startpos)
+            #f
+            ]
         )
     )
-    
-
-    
 )
 
-(makepath-acc data (list (pos 0 0)))
+
+;;(makepath-acc data startpos)
 

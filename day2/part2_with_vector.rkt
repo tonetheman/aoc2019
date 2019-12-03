@@ -30,6 +30,7 @@
             [output-index (vector-ref ll (+ ip 3))]
             [pos1-val (vector-ref ll pos1-index)]
             [pos2-val (vector-ref ll pos2-index)])
+            ;;(printf "\t~a ~a ~a\n" pos1-index pos2-index output-index)
             ;;(printf "output index is ~a\n" output-index)
             ;;(printf "pos1 val and pos2 val ~a ~a\n" pos1-val pos2-val)
             (vector-set! ll output-index (+ pos1-val pos2-val))
@@ -41,6 +42,7 @@
             [output-index (vector-ref ll (+ ip 3))]
             [pos1-val (vector-ref ll pos1-index)]
             [pos2-val (vector-ref ll pos2-index)])
+            ;; (printf "\t~a ~a ~a\n" pos1-index pos2-index output-index)
             ;;(printf "output index is ~a\n" output-index)
             ;;(printf "pos1 val and pos2 val ~a ~a\n" pos1-val pos2-val)
             (vector-set! ll output-index (* pos1-val pos2-val))

@@ -1,7 +1,9 @@
 #lang racket
 
-;;(define s (file->string "data.txt"))
-(define s "1,9,10,3,2,3,11,0,99,30,40,50")
+(define s (file->string "data.txt"))
+;; (define s "1,9,10,3,2,3,11,0,99,30,40,50")
+;;(define s "1,1,1,4,99,5,6,0,99")
+
 (define inp
     (list->vector (map string->number (string-split s ",")))
 )
@@ -18,8 +20,11 @@
 (define (runprogram inp noun verb)
     (println inp)
 
-    ;;(vector-set! inp 1 noun)
-    ;;(vector-set! inp 2 verb)
+    (vector-set! inp 1 noun)
+    (vector-set! inp 2 verb)
+    (println inp)
+    
+    
     (let loop ([ip 0])
         (if (> (vector-length inp) ip)
             (cond
@@ -50,6 +55,7 @@
         )
     )
     (println inp)
+    (printf "the output is ~a\n" (vector-ref inp 0))
 )
 
 (runprogram (vector-copy inp) 12 2)

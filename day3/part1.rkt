@@ -11,7 +11,7 @@
     (define x (first (first startpos)))
     (define y (second (first startpos)))
 
-    (for ([i (in-range 1 stepcount)])
+    (for ([i (in-range 1 (+ 1 stepcount))])
         (define crud (list (list x (+ y i))))
         (set! tmp (append crud tmp))
     )
@@ -23,7 +23,7 @@
     (define x (first (first startpos)))
     (define y (second (first startpos)))
 
-    (for ([i stepcount])
+    (for ([i (in-range 1 (+ stepcount 1))])
         (define crud (list (list x (- y i))))
         (set! tmp (append crud tmp))
     )
@@ -34,7 +34,7 @@
     (define tmp '())
     (define x (first (first startpos)))
     (define y (second (first startpos)))
-    (for ([i (in-range 1 stepcount)])
+    (for ([i (in-range 1 (+ stepcount 1))])
         (define crud (list (list (+ i x) y)))
         (set! tmp (append crud  tmp))
     )
@@ -45,8 +45,8 @@
     (define tmp '())
     (define x (first (first startpos)))
     (define y (second (first startpos)))
-    (for ([i stepcount])
-        (define crud (list (list (- i x) y)))
+    (for ([i (in-range 1 (+ stepcount 1))])
+        (define crud (list (list (- x i) y)))
         (set! tmp (append crud tmp))
     )
     tmp

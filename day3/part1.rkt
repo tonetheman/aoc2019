@@ -108,9 +108,12 @@
 
 (for ([i res1])
     (for ([j res2])
-        (if (eqv? i j)
-            (printf "got it ~a ~a\n" i j)
-            #f
+        (begin
+            (printf "~a ~a ~a\n" i j (eq? i j))
+            (if (eqv? i j)
+                (printf "got it ~a ~a\n" i j)
+                #f
+            )
         )
     )
 )

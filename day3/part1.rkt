@@ -15,9 +15,11 @@
     (define x (first (first startpos)))
     (define y (second (first startpos)))
 
-    (for ([i stepcount])
-        (set! tmp (append (list (list x (+ y i)) tmp)))
+    (for ([i (in-range 1 stepcount)])
+        (define crud (list (list x (+ y i))))
+        (set! tmp (append crud tmp))
     )
+    (printf "UP: ~a\n" tmp)
     tmp
 )
 (define (generate-down-steps startpos direction stepcount)
@@ -26,7 +28,8 @@
     (define y (second (first startpos)))
 
     (for ([i stepcount])
-        (set! tmp (append (list (list x (- y i)) tmp)))
+        (define crud (list (list x (- y i))))
+        (set! tmp (append crud tmp))
     )
     tmp
 )
@@ -35,9 +38,11 @@
     (define tmp '())
     (define x (first (first startpos)))
     (define y (second (first startpos)))
-    (for ([i stepcount])
-        (set! tmp (append (list (list (+ i x) y)) tmp))
+    (for ([i (in-range 1 stepcount)])
+        (define crud (list (list (+ i x) y)))
+        (set! tmp (append crud  tmp))
     )
+    (printf "RIGHT: ~a\n" tmp)
     tmp
 )
 (define (generate-left-steps startpos direction stepcount)
@@ -45,7 +50,8 @@
     (define x (first (first startpos)))
     (define y (second (first startpos)))
     (for ([i stepcount])
-        (set! tmp (append (list (list (- i x) y)) tmp))
+        (define crud (list (list (- i x) y)))
+        (set! tmp (append crud tmp))
     )
     tmp
 )
@@ -62,29 +68,30 @@
         (cond
             [(moving-right? direction)
             (set! startpos (append (generate-right-steps startpos direction stepcount) startpos))
-            (printf "startpos is ~a\n" startpos)
+            ;;(printf "startpos is ~a\n" startpos)
             #f
             ]
             [(moving-left? direction)
             (set! startpos (append (generate-left-steps startpos direction stepcount) startpos))
-            (printf "startpos is ~a\n" startpos)
+            ;;(printf "startpos is ~a\n" startpos)
             #f
             ]
 
             [(moving-up? direction)
             (set! startpos (append (generate-up-steps startpos direction stepcount) startpos))
-            (printf "startpos is ~a\n" startpos)
+            ;;(printf "startpos is ~a\n" startpos)
             #f
             ]
             [(moving-down? direction)
             (set! startpos (append (generate-down-steps startpos direction stepcount) startpos))
-            (printf "startpos is ~a\n" startpos)
+            ;;(printf "startpos is ~a\n" startpos)
             #f
             ]
         )
     )
 )
 
+(println startpos)
 
 ;;(makepath-acc data startpos)
 

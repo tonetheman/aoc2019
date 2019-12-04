@@ -106,14 +106,18 @@
 (define res2 (make-path data2))
 (printf "res2 is ~a\n" res2)
 
+(define points '())
 (for ([i res1])
     (for ([j res2])
         (begin
             (printf "~a ~a ~a\n" i j (eq? i j))
-            (if (eqv? i j)
-                (printf "got it ~a ~a\n" i j)
+            (if (equal? i j)
+                ;;(printf "got it ~a ~a\n" i j)
+                (set! points (append i points))
                 #f
             )
         )
     )
 )
+
+(println points)

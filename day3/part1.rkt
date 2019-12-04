@@ -1,9 +1,5 @@
 #lang racket
 
-(define s "R8,U5,L5,D3")
-
-(define data (string-split s ","))
-(printf "input data is ~a\n" data)
 
 (define (moving-right? n) (char=? n #\R))
 (define (moving-left? n) (char=? n #\L))
@@ -19,7 +15,7 @@
         (define crud (list (list x (+ y i))))
         (set! tmp (append crud tmp))
     )
-    (printf "UP: ~a\n" tmp)
+    ;;(printf "UP: ~a\n" tmp)
     tmp
 )
 (define (generate-down-steps startpos direction stepcount)
@@ -42,7 +38,7 @@
         (define crud (list (list (+ i x) y)))
         (set! tmp (append crud  tmp))
     )
-    (printf "RIGHT: ~a\n" tmp)
+    ;;(printf "RIGHT: ~a\n" tmp)
     tmp
 )
 (define (generate-left-steps startpos direction stepcount)
@@ -56,42 +52,65 @@
     tmp
 )
 
-;; start at zero
-(define startpos (list '(0 0)))
+(define (make-path data)
 
-;; (println startpos)
-(for ([step-data data])
-    (let ([direction (string-ref step-data 0)]
-            [stepcount (string->number (substring step-data 1))])
-        ;; (printf "~a\n" step-data)
-        ;; (printf "~a\n" direction)
-        (cond
-            [(moving-right? direction)
-            (set! startpos (append (generate-right-steps startpos direction stepcount) startpos))
-            ;;(printf "startpos is ~a\n" startpos)
-            #f
-            ]
-            [(moving-left? direction)
-            (set! startpos (append (generate-left-steps startpos direction stepcount) startpos))
-            ;;(printf "startpos is ~a\n" startpos)
-            #f
-            ]
+    ;; start at zero
+    (define startpos (list '(0 0)))
 
-            [(moving-up? direction)
-            (set! startpos (append (generate-up-steps startpos direction stepcount) startpos))
-            ;;(printf "startpos is ~a\n" startpos)
+    ;; (println startpos)
+    (for ([step-data data])
+        (let ([direction (string-ref step-data 0)]
+                [stepcount (string->number (substring step-data 1))])
+            ;; (printf "~a\n" step-data)
+            ;; (printf "~a\n" direction)
+            (cond
+                [(moving-right? direction)
+                (set! startpos (append (generate-right-steps startpos direction stepcount) startpos))
+                ;;(printf "startpos is ~a\n" startpos)
+                #f
+                ]
+                [(moving-left? direction)
+                (set! startpos (append (generate-left-steps startpos direction stepcount) startpos))
+                ;;(printf "startpos is ~a\n" startpos)
+                #f
+                ]
+
+                [(moving-up? direction)
+                (set! startpos (append (generate-up-steps startpos direction stepcount) startpos))
+                ;;(printf "startpos is ~a\n" startpos)
+                #f
+                ]
+                [(moving-down? direction)
+                (set! startpos (append (generate-down-steps startpos direction stepcount) startpos))
+                ;;(printf "startpos is ~a\n" startpos)
+                #f
+                ]
+            )
+        )
+    )
+
+    startpos
+
+)
+
+
+(define s1 "R8,U5,L5,D3")
+(define data1 (string-split s1 ","))
+(printf "input data is ~a\n" data1)
+(define res1 (make-path data1))
+(printf "res is ~a\n" res1)
+;;(makepath-acc data startpos)
+
+(define s2 "U7,R6,D4,L4")
+(define data2 (string-split s2 ","))
+(define res2 (make-path data2))
+(printf "res2 is ~a\n" res2)
+
+(for ([i res1])
+    (for ([j res2])
+        (if (eqv? i j)
+            (printf "got it ~a ~a\n" i j)
             #f
-            ]
-            [(moving-down? direction)
-            (set! startpos (append (generate-down-steps startpos direction stepcount) startpos))
-            ;;(printf "startpos is ~a\n" startpos)
-            #f
-            ]
         )
     )
 )
-
-(println startpos)
-
-;;(makepath-acc data startpos)
-

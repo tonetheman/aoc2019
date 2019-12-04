@@ -89,22 +89,24 @@
     
         ;; pos 0 = pos 1
         (if (and (= d0 d1) (not (= d1 d2)))
-            (println "yup")
+            #t
             
             ;; pos 1 = pos 2
             (if (and (= d1 d2) (not (= d1 d0)) (not (= d2 d3)))
-                (println "yup")
-                
-                ;; pos 3 = pos 4
-                (if (and (= d3 d4) (not (= d3 d2)) (not (= d4 d5)))
-                    (println "yup")
-                    
-                    (if (and (= d4 d5) (not (= d4 d3))  )
-                        (println "yup")
-                        (println "nope")
-                    )
+                #t
+                (if (and (= d2 d3) (not (= d2 d1)) (not (= d3 d4)) )
+                    #t
+                    ;; pos 3 = pos 4
+                    (if (and (= d3 d4) (not (= d3 d2)) (not (= d4 d5)))
+                        #t
+                        
+                        (if (and (= d4 d5) (not (= d4 d3))  )
+                            #t
+                            #f
+                        )
 
-                ) ;; end of pos 3 = pos 4
+                    ) ;; end of pos 3 = pos 4
+                )
             ) ;; end of pos 1 = pos 3
 
         ) ;; end pos 0 = pos 1
@@ -144,11 +146,16 @@
 
 (define (part2)
     (define count 0)
-    (for ([i (in-range lowend hiend)])
+    (for ([i (in-range lowend (+ hiend 1))])
         (if (always-incr (digits i))
             (if (has-eyes-orig (digits i))
-                
-                (set! count (+ count 1))
+                (if (has-eyes3 (digits i))
+                    (begin
+                        (println i)
+                        (set! count (+ count 1))
+                    )
+                    #f
+                )
                 #f
             )
             #f
@@ -158,4 +165,9 @@
 )
 
 (part2)
-;; (has-eyes3 (list 1 2 3 5 5 5))
+;; GUESSED 1238 - too low
+
+;;(define tt (list 1 3 5 5 6 7))
+;;(printf "testing ~a\n" tt)
+;;(has-eyes3 tt)
+

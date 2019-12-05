@@ -6,8 +6,8 @@ def dist(p1,p2):
 def genpoints(data,pathid):
     data = data.split(",")
     cp = (0,0) # current point
-    points = {}
-    points[(0,0)] = pathid
+    points = set()
+    points.add((0,0))
     for d in data:
         curx=cp[0]
         cury=cp[1]
@@ -15,22 +15,22 @@ def genpoints(data,pathid):
         if d[0]=="U":
             dist = int(d[1:])
             for i in range(1,dist+1):
-                points[(curx,cury+i)] = pathid
+                points.add((curx,cury+i))
                 cp = (curx,cury+i)
         elif d[0] == "R":
             dist = int(d[1:])
             for i in range(1,dist+1):
-                points[(curx+i,cury)] = pathid
+                points.add((curx+i,cury))
                 cp = (curx+i,cury)
         elif d[0] == "L":
             dist = int(d[1:])
             for i in range(1,dist+1):
-                points[(curx-i,cury)] = pathid
+                points.add((curx-i,cury))
                 cp = (curx-i,cury)
         elif d[0] == "D":
             dist = int(d[1:])
             for i in range(1,dist+1):
-                points[(curx,cury-i)] = pathid
+                points.add((curx,cury-i))
                 cp = (curx,cury-i)
     return points
 
@@ -40,6 +40,18 @@ def doit(data1,data2):
     points1 = genpoints(data1,1)
     points2 = genpoints(data2,2)
 
+    res = points1 & points2
+    answer = 999999999
+    for p in res:
+        if p == (0,0):
+            continue
+        di = dist(PORTAL,p)
+        print p,di
+        if di<answer:
+            answer = di
+    print answer
+
+    """
     print "About to compare ..."
     answer = 99999999999
     for i in points1:
@@ -52,6 +64,7 @@ def doit(data1,data2):
                     answer = di
                 print "match",i,j, di
     print "final",answer
+    """
 
 def test():
     data1 = "U7,R6,D4,L4"

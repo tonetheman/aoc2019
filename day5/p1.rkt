@@ -93,8 +93,29 @@
     )
 )
 
+(define param-mode-position 0)
+(define param-mode-immediate 1)
+
+(define (mk-znum n)
+    (~r n #:min-width 5 #:pad-string "0")
+)
+
+(define (get-opcode n)
+    (let ([snum (mk-znum n)])
+        (printf "snum: ~a\n" snum)
+        (define opcode (substring snum 3))
+        (printf "opcode: ~a\n" opcode)
+        (define modeparam1 (substring snum 2 3))
+        (define modeparam2 (substring snum 1 2))
+        (define modeparam3 (substring snum 0 1))
+        (printf "params: ~a ~a ~a\n" modeparam1 modeparam2 modeparam3)
+    )
+)
+
 ;; (part2)
 
 (define s "1101,100,-1,4,0")
 (define inp (list->vector (map string->number (string-split s ","))))
 (runprogram (vector-copy inp) 1 1)
+
+(get-opcode 12302)

@@ -17,8 +17,8 @@
 
 (define (runprogram inp noun verb)
  
-    (vector-set! inp 1 noun)
-    (vector-set! inp 2 verb)
+    ;;(vector-set! inp 1 noun)
+    ;;(vector-set! inp 2 verb)
     
     (let loop ([ip 0])
         (if (> (vector-length inp) ip)
@@ -93,4 +93,8 @@
     )
 )
 
-(part2)
+;; (part2)
+
+(define s "1101,100,-1,4,0")
+(define inp (list->vector (map string->number (string-split s ","))))
+(runprogram (vector-copy inp) 1 1)

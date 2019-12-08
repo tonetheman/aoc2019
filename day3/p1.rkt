@@ -1,6 +1,6 @@
 #lang racket
 
-
+;; routines to help parse input
 (define (moving-right? n) (char=? n #\R))
 (define (moving-left? n) (char=? n #\L))
 (define (moving-up? n) (char=? n #\U))
@@ -51,52 +51,28 @@
   (define startpos (list 0 0))
   (set-add! bob startpos)
   (for ([step-data data])
-        (let ([direction (string-ref step-data 0)]
-                [stepcount (string->number (substring step-data 1))])
-	  (cond
-	    [(moving-right? direction)
-	     (define res (gen-right startpos stepcount))
-	     (for ([i res])
-		  (set-add! bob i)
-		  )
-	     (set! startpos (first res))
-	     #f
-	     ]
-	    [(moving-up? direction)
-	     (define res (gen-up startpos stepcount))
-	     (for ([i res])
-		  (set-add! bob i)
-		  )
-	     (set! startpos (first res))
-	     #f
-	     ]
-
-	    [(moving-left? direction)
-	     (define res (gen-left startpos stepcount))
-	     (for ([i res])
-		  (set-add! bob i)
-		  )
-	     (set! startpos (first res))
-	     #f
-	     ]
-	    
-	    [(moving-down? direction)
-	     (define res (gen-down startpos stepcount))
-	     (for ([i res])
-		  (set-add! bob i)
-		  )
-	     (set! startpos (first res))
-	     #f
-	     ]
-	    
-	    
-	    
-	    )
-       ) ;; end of let
-	) ;; end of for
-  (printf "final version of bob ~a\n" bob)
- 	bob 
-  ) ;; end of func
+    (let ([direction (string-ref step-data 0)]
+      [stepcount (string->number (substring step-data 1))])
+      (define res
+        (cond
+          [(moving-right? direction)
+            (gen-right startpos stepcount)]
+          [(moving-up? direction)
+            (gen-up startpos stepcount)]
+          [(moving-left? direction)
+            (gen-left startpos stepcount)]
+          [(moving-down? direction)
+            (gen-down startpos stepcount)]
+        ) ;; end of cond
+      )
+      (for ([i res])
+        (set-add! bob i))
+      (set! startpos (first res))
+    )  ;; end of let
+  ) ;; end of for
+(printf "final version of bob ~a\n" bob)
+bob 
+) ;; end of func
 
 
 (define s1 "R8,U5,L5,D3")

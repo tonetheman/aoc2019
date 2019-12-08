@@ -36,7 +36,7 @@ def genpoints(data,pathid):
 
 
 def doit(data1,data2):
-    print "generating point..."
+    print("generating point...")
     points1 = genpoints(data1,1)
     points2 = genpoints(data2,2)
 
@@ -46,10 +46,10 @@ def doit(data1,data2):
         if p == (0,0):
             continue
         di = dist(PORTAL,p)
-        print p,di
+        print(p,di)
         if di<answer:
             answer = di
-    print answer
+    print(answer)
 
     """
     print "About to compare ..."
@@ -87,8 +87,14 @@ def part1():
     data2 = inf.readline()
     inf.close()
     import string
-    data1 = string.strip(data1)
-    data2 = string.strip(data2)
+    data1 = data1.strip("\n")
+    # data1 = string.strip(data1)
+    data2 = data2.strip("\n")
+    # data2 = string.strip(data2)
     doit(data1,data2)
 
-part1()
+print("test 1")
+test1()
+print("0-------------")
+print("test 2")
+test2()

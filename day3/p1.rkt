@@ -79,8 +79,9 @@ bob
 )
 
 (define (dist p1 p2)
-    (+ (abs (- (first p1) (first p2)))
-    (abs (- (second p2) (second p2))))
+  (+ (abs (- (first p1) (first p2)))
+    (abs (- (second p1) (second p2)))
+  )
 )
 
 (define (part1 s1 s2)
@@ -120,38 +121,41 @@ bob
   (println res1)
 )
 
-(define (utest s1 e1)
-  (define data1 (string->list s1))
-  (println data1)
-  (define res1 (make-path data1))
-  (println res1)
-  (set-intersect! res1 e1)
-  (printf "FINAL: res1 ~a\n" res1)
-  (printf "FINAL: e1 ~a\n" e1)
+(define (tests)
+  (test "R8,U5,L5,D3")
+  (test "R1,D2")
+  (test "L1,D2")
+  (test "U1,D1")
+  (test "U1,L2")
 )
 
-(test "R8,U5,L5,D3")
-(test "R1,D2")
-(test "L1,D2")
-(test "U1,D1")
-(test "U1,L2")
-
-(define e1 (mutable-set))
-(for ([i 6])
-  (set-add! e1 (list i 0))
+(define (get-file-input)
+  (define in-port (open-input-file "data.txt"))
+  (define line1 (string-normalize-spaces 
+    (read-line in-port)))
+  (define line2 (string-normalize-spaces 
+    (read-line in-port)))
+  (close-input-port in-port)
+  (list line1 line2)
 )
-(set-add! e1 (list 5 -1))
-(set-add! e1 (list 5 -2))
-(set-add! e1 (list 5 -3))
-(set-add! e1 (list 5 -4))
-(set-add! e1 (list 5 -5))
 
-(printf "e1 is : ~a\n" e1)
-(utest "R5,D5" e1)
+(define (test-file)
+  (define res (get-file-input))
+  (define line1 (first res))
+  (define line2 (second res))
+  (println line1)
+  (println line2)
+)
 
 ;; works
 ;; (part1 "R8,U5,L5,D3" "U7,R6,D4,L4")
-
-;; does not work
 ;; (part1 "R75,D30,R83,U83,L12,D49,R71,U7,L72" "U62,R66,U55,R34,D71,R55,D58,R83")
 ;; (part1 "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51" "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
+;; (test-file)
+
+;; finally part1
+(define fd (get-file-input))
+(part1 (first fd) (second  fd))
+
+
+

@@ -1,6 +1,8 @@
 #lang racket
 
 ;; routines to help parse input
+;; really just because the notation for char
+;; is stupid
 (define (moving-right? n) (char=? n #\R))
 (define (moving-left? n) (char=? n #\L))
 (define (moving-up? n) (char=? n #\U))

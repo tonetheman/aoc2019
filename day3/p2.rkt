@@ -94,18 +94,17 @@ bob
   )
 )
 
-(define (find-in-set param s)
+(define (find-in-set param s name)
   (define pfirst (first param))
   (define psecond (second param))
-  (define res #f)
+  (printf "\t~a\n" name)
   (for ([i s])
     (if (and (= (first i) pfirst)
       (= (second i) psecond))
-      (set! res i)
+      (printf "\t~a\n" i)
       #f
     )
   )
-  res
 )
 
 (define (part1 s1 s2)
@@ -132,7 +131,9 @@ bob
     (if (equal? i '(0 0))
       #f
       (let ([d (dist '(0 0) i)])
-        (printf "~a ~a ~a ~a\n" i d (find-in-set i res1) (find-in-set i res2))
+        (printf "~a ~a\n" i d)
+        (find-in-set i res1 "res1")
+        (find-in-set i res2 "res2")
         (if (< d lowest)
           (begin
             (set! lowest d)

@@ -2,6 +2,13 @@
 
 (require "intcodes.rkt")
 
+(define (test2)
+	(define mylist (permutations (list 0 1 2 3 4)))
+	(for ([i mylist])
+		(println i)
+	)
+)
+
 (define (test1)
     (define instr (make-vector 1000))
     (define counter 0)
@@ -33,4 +40,5 @@
     (printf "p5 output ~a\n" p5-output)
 )
 
-(test1)
+;; (test1)
+(test2)

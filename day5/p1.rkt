@@ -16,6 +16,17 @@
 (define (opoutput? n) (= n 4))
 (define opoutput-len 2)
 
+(define (opjmpiftrue? n) (= n 5))
+(define opjmpiftrue-len 3)
+
+(define (opjmpiffalse? n) (= n 6))
+(define opjmpiffalse-len 3)
+
+(define (oplessthan? n) (= n 7))
+(define oplessthan-len 4)
+
+(define (opequals? n) (= n 8))
+(define opequals-len 4)
 
 (define (tranlate-opcode n)
     (define s (~r n #:min-width 5 #:pad-string "0"))
@@ -35,6 +46,7 @@
 ;;(define (runprogram inp noun verb)
 (define (runprogram inp input-to-program)
  
+    (printf "the program input is set to ~a\n" input-to-program)
     ;; this should be set with opcode 4
     (define output-to-program #f)
 
@@ -78,7 +90,6 @@
                             (define arg2 (vector-ref inp (+ 2 ip)))
                             (define output (vector-ref inp (+ 3 ip)))
                             ;; (printf "\t~a ~a ~a\n" arg1 arg2 output)
-
                             (define a1
                                 (cond
                                     [(= pm1 0)
@@ -99,8 +110,6 @@
                                     ]
                                 )
                             )
-
-
                             (vector-set! inp output (* a1 a2))
                             (loop (+ ip (opmult-len)))]
                         [(opterm? opcode)
@@ -114,7 +123,8 @@
                             ;; need to store the input variable
                             ;; passed into the function
                             ;; in this place in memory
-                            (vector-set! inp arg1 input-to-program)         
+                            (vector-set! inp arg1 input-to-program)
+                            (printf "DBG: after opinput ~a\n" inp)         
                             (loop (+ ip opinput-len))
                         ]
                         [(opoutput? opcode)
@@ -123,6 +133,69 @@
                             (set! output-to-program (vector-ref inp arg1))
                             (loop (+ ip opoutput-len))
                         ]
+                        [(opequals? opcode)
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (define arg2 (vector-ref inp (+ 2 ip)))
+                            (define output (vector-ref inp (+ 3 ip)))
+                            (define a1
+                                (cond
+                                    [(= pm1 0)
+                                        (vector-ref inp arg1)
+                                    ]
+                                    [(= pm1 1)
+                                        arg1
+                                    ]
+                                )
+                            )
+                            (define a2
+                                (cond
+                                    [(= pm2 0)
+                                        (vector-ref inp arg2)
+                                    ]
+                                    [(= pm2 1)
+                                        arg2
+                                    ]
+                                )
+                            )
+                            (if (= a1 a2)
+                                (vector-set! inp output 1)
+                                (vector-set! inp output 0)
+                            )
+                            (loop (+ ip opequals-len))
+                        ]
+
+                        [(oplessthan? opcode)
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (define arg2 (vector-ref inp (+ 2 ip)))
+                            (define output (vector-ref inp (+ 3 ip)))
+                            (define a1
+                                (cond
+                                    [(= pm1 0)
+                                        (vector-ref inp arg1)
+                                    ]
+                                    [(= pm1 1)
+                                        arg1
+                                    ]
+                                )
+                            )
+                            (define a2
+                                (cond
+                                    [(= pm2 0)
+                                        (vector-ref inp arg2)
+                                    ]
+                                    [(= pm2 1)
+                                        arg2
+                                    ]
+                                )
+                            )
+                            (if (< a1 a2)
+                                (vector-set! inp output 1)
+                                (vector-set! inp output 0)
+                            )
+                            (loop (+ ip oplessthan-len))
+                        ]
+
+
                         [else (println "nope")]
                     )
 
@@ -234,7 +307,6 @@
 )
 
 (define (test5)
-
     (define instr (make-vector 100))
     (define counter 0)
     (for ([i (list 1002 4 3 4 33)])
@@ -265,5 +337,17 @@
     (runprogram (vector-copy inp) 1)
 )
 
+(define (test7)
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 3 9 8 9 10 9 4 9 99 -1 8)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (println instr)
+    (runprogram instr 8)
+    (println instr)
+)
 
-(part1)
+
+(test7)

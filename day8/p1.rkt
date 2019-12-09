@@ -3,7 +3,7 @@
 (define w 25)
 (define h 6)
 (define ZERO (char->integer #\0))
-(define layers '())
+(define layers (make-vector 100))
 
 (define input (file->string "data.txt"))
 (define input-data (make-vector 15000))
@@ -22,7 +22,7 @@
     (for ([counter (* w h)])
         (vector-set! ll counter (vector-ref input-data (+ (* i (* 25 6)) counter)))
     )
-    (set! layers (append layers (list (vector->list ll))))
+    (vector-set! layers i ll)
     (define zc 0)
     (define onec 0)
     (define twoc 0)
@@ -48,5 +48,4 @@
 )
 (printf "lowest is ~a\n" lowest)
 
-;;(println layers)
-
+(define final-image (make-vector 6))

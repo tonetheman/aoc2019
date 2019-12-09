@@ -3,6 +3,10 @@
 ;; this is bad
 (define global-counter 0)
 
+(define (reset-global-counter)
+  (set! global-counter 0)
+)
+
 ;; routines to help parse input
 ;; really just because the notation for char
 ;; is stupid
@@ -107,10 +111,33 @@ bob
   )
 )
 
+(define (sum-counter target res1 res2)
+  (define f (first target))
+  (define s (second target))
+  (define total 0)
+  (for ([i res1])
+    (if (and (= (first i) f)
+      (= (second i) s))
+      (set! total (+ total (third i)))
+      #f
+    )
+  )
+  (for ([i res2])
+    (if (and (= (first i) f)
+      (= (second i) s))
+      (set! total (+ total (third i)))
+      #f
+    )
+  )
+  total
+)
+
 (define (part1 s1 s2)
+  (reset-global-counter)
   (define data1 (string-split s1 ","))
   (define res1 (make-path data1))
 
+  (reset-global-counter)
   (define data2 (string-split s2 ","))
   (define res2 (make-path data2))
 
@@ -127,6 +154,7 @@ bob
   (set-intersect! res1orig res2orig)
   
   (define lowest 999999999)
+  (define lowestsum 9999999999)
   (for ([i res1orig])
     (if (equal? i '(0 0))
       #f
@@ -134,11 +162,17 @@ bob
         (printf "~a ~a\n" i d)
         (find-in-set i res1 "res1")
         (find-in-set i res2 "res2")
+        (define sc (sum-counter i res1 res2))
+        (printf "sum of counter is ~a\n" sc)
         (if (< d lowest)
           (begin
             (set! lowest d)
             #t
           )
+          #f
+        )
+        (if (< sc lowestsum)
+          (set! lowestsum sc)
           #f
         )
         #f
@@ -147,7 +181,8 @@ bob
   )
  
   (println "done")
-  (println lowest)
+  (printf "lowest: ~a\n" lowest)
+  (printf "lowest sum is : ~a\n" lowestsum)
   lowest
 )
 
@@ -185,8 +220,8 @@ bob
 )
 
 ;; works
-;; (part1 "R8,U5,L5,D3" "U7,R6,D4,L4")
-(part1 "R75,D30,R83,U83,L12,D49,R71,U7,L72" "U62,R66,U55,R34,D71,R55,D58,R83")
+;;(part1 "R8,U5,L5,D3" "U7,R6,D4,L4")
+;; (part1 "R75,D30,R83,U83,L12,D49,R71,U7,L72" "U62,R66,U55,R34,D71,R55,D58,R83")
 ;; (part1 "R98,U47,R26,D63,R33,U87,L62,D20,R33,U53,R51" "U98,R91,D20,R16,D67,R40,U7,R15,U6,R7")
 ;; (test-file)
 
@@ -196,5 +231,6 @@ bob
   (part1 (first fd) (second  fd))
 )
 
+(final-part-one)
 
 

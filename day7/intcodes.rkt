@@ -63,7 +63,7 @@
 
                     (cond
                         [(opadd? opcode)
-                            ;; (printf "opadd is called ~a\n" ip)
+                            (printf "opadd is called ~a\n" ip)
                             (define arg1 (vector-ref inp (+ 1 ip)))
                             (define arg2 (vector-ref inp (+ 2 ip)))
                             (define output (vector-ref inp (+ 3 ip)))
@@ -91,7 +91,7 @@
                             (vector-set! inp output (+ a1 a2))
                             (loop (+ ip (opadd-len)))]
                         [(opmult? opcode)
-                            ;; (printf "opmult is called ~a\n" ip)
+                            (printf "opmult is called ~a\n" ip)
                             (define arg1 (vector-ref inp (+ 1 ip)))
                             (define arg2 (vector-ref inp (+ 2 ip)))
                             (define output (vector-ref inp (+ 3 ip)))
@@ -119,13 +119,13 @@
                             (vector-set! inp output (* a1 a2))
                             (loop (+ ip (opmult-len)))]
                         [(opterm? opcode)
-                            ;;(printf "terminate!\n")
+                            (printf "terminate!\n")
                             ;; this is a cheat to push the ip way out
                             ;; that way the machine will stop
                             (loop (+ ip (vector-length inp)))]
                         [(opinput? opcode)
                             (define arg1 (vector-ref inp (+ 1 ip)))
-                            ;;(printf "opinput called ~a\n" arg1)
+                            (printf "opinput called ~a\n" arg1)
                             ;; need to store the input variable
                             ;; passed into the function
                             ;; in this place in memory
@@ -140,7 +140,7 @@
                         ]
                         [(opoutput? opcode)
                             (define arg1 (vector-ref inp (+ 1 ip)))
-                            ;;(printf "op output called pm is ~a\n" pm1)
+                            (printf "op output called pm is ~a\n" pm1)
                             ;;(printf "op output called ~a\n" arg1)
 
                             (define a1
@@ -159,6 +159,7 @@
                             (loop (+ ip opoutput-len))
                         ]
                         [(opequals? opcode)
+                            (printf "opequals called\n")
                             (define arg1 (vector-ref inp (+ 1 ip)))
                             (define arg2 (vector-ref inp (+ 2 ip)))
                             (define output (vector-ref inp (+ 3 ip)))
@@ -190,6 +191,7 @@
                         ]
 
                         [(oplessthan? opcode)
+                            (printf "oplessthan called\n")
                             (define arg1 (vector-ref inp (+ 1 ip)))
                             (define arg2 (vector-ref inp (+ 2 ip)))
                             (define output (vector-ref inp (+ 3 ip)))
@@ -220,6 +222,7 @@
                             (loop (+ ip oplessthan-len))
                         ]
                         [(opjmpiftrue? opcode)
+                            (printf "opjmpiftrue called\n")
                             (define arg1 (vector-ref inp (+ 1 ip)))
                             (define arg2 (vector-ref inp (+ 2 ip)))
                             (define a1
@@ -248,6 +251,7 @@
                             )
                         ]
                         [opjmpiffalse? opcode
+                            (printf "opjmpiffalse called\n")
                             (define arg1 (vector-ref inp (+ 1 ip)))
                             (define arg2 (vector-ref inp (+ 2 ip)))
                             (define a1

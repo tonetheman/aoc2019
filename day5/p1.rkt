@@ -43,6 +43,10 @@
     (list opcode param1mode param2mode param3mode)
 )
 
+(define (is-not-zero n)
+    (not (= n 0))
+)
+
 ;;(define (runprogram inp noun verb)
 (define (runprogram inp input-to-program)
  
@@ -129,8 +133,22 @@
                         ]
                         [(opoutput? opcode)
                             (define arg1 (vector-ref inp (+ 1 ip)))
+                            (printf "op output called pm is ~a\n" pm1)
                             (printf "op output called ~a\n" arg1)
-                            (set! output-to-program (vector-ref inp arg1))
+
+                            (define a1
+                                (cond
+                                    [(= pm1 0)
+                                        (vector-ref inp arg1)
+                                    ]
+                                    [(= pm1 1)
+                                        arg1
+                                    ]
+                                )
+                            )
+
+
+                            (set! output-to-program a1)
                             (loop (+ ip opoutput-len))
                         ]
                         [(opequals? opcode)
@@ -194,18 +212,64 @@
                             )
                             (loop (+ ip oplessthan-len))
                         ]
-
-
+                        [(opjmpiftrue? opcode)
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (define arg2 (vector-ref inp (+ 2 ip)))
+                            (define a1
+                                (cond
+                                    [(= pm1 0)
+                                        (vector-ref inp arg1)
+                                    ]
+                                    [(= pm1 1)
+                                        arg1
+                                    ]
+                                )
+                            )
+                            (define a2
+                                (cond
+                                    [(= pm2 0)
+                                        (vector-ref inp arg2)
+                                    ]
+                                    [(= pm2 1)
+                                        arg2
+                                    ]
+                                )
+                            )
+                            (if (is-not-zero a1)
+                                (loop a2)
+                                (loop (+ ip opjmpiftrue-len))
+                            )
+                        ]
+                        [opjmpiffalse? opcode
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (define arg2 (vector-ref inp (+ 2 ip)))
+                            (define a1
+                                (cond
+                                    [(= pm1 0)
+                                        (vector-ref inp arg1)
+                                    ]
+                                    [(= pm1 1)
+                                        arg1
+                                    ]
+                                )
+                            )
+                            (define a2
+                                (cond
+                                    [(= pm2 0)
+                                        (vector-ref inp arg2)
+                                    ]
+                                    [(= pm2 1)
+                                        arg2
+                                    ]
+                                )
+                            )
+                            (if (= a1 0)
+                                (loop a2)
+                                (loop (+ ip opjmpiffalse-len))
+                            )
+                        ]
                         [else (println "nope")]
                     )
-
-
-
-
-
-
-
-
 
                 ) ;; end of match-let
             ) ;; end of let
@@ -338,6 +402,7 @@
 )
 
 (define (test7)
+    ;; pos mode test 1
     (define instr (make-vector 100))
     (define counter 0)
     (for ([i (list 3 9 8 9 10 9 4 9 99 -1 8)])
@@ -349,5 +414,94 @@
     (println instr)
 )
 
+(define (test8)
+    ;; pos mode test 2
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 3 9 7 9 10 9 4 9 99 -1 8)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (println instr)
+    (runprogram instr 9)
+    (println instr)
+)
 
-(test7)
+(define (test9)
+    ;; imm mode test 1
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 3 3 1108 -1 8 3 4 3 99)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (println instr)
+    (runprogram instr 10)
+    (println instr)
+)
+
+(define (test10)
+    ;; imm mode test 1
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 3 3 1107 -1 8 3 4 3 99)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (println instr)
+    (runprogram instr 8)
+    (println instr)
+)
+
+(define (test11)
+    ;; jmp test 3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 3 12 6 12 15 1 13 14 13 4 13 99 -1 0 1 9)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (println instr)
+    (runprogram instr 0)
+    (println instr)
+
+)
+
+(define (test12)
+    ;; jmp imm 3,3,1105,-1,9,1101,0,0,12,4,12,99,1
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 3 3 1105 -1 9 1101 0 0 12 4 12 99 1)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (println instr)
+    (runprogram instr -1)
+    (println instr)
+
+)
+
+(define (test13)
+    (define instr (make-vector 1000))
+    (define counter 0)
+    (for ([i (list 3 21 1008 21 8 20 1005 20 22 107 8 21 20 1006 20 31 1106 0 36 98 0 0 1002 21 125 20 4 20 1105 1 46 104 999 1105 1 46 1101 1000 1 20 4 20 1105 1 46 98 99)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (println instr)
+    (runprogram instr 0)
+    (println instr)
+
+
+)
+
+(define (part2)
+    (define s (file->string "data.txt"))
+    (define inp
+        (list->vector (map string->number (string-split s ",")))
+    )
+    (println inp)
+    (runprogram (vector-copy inp) 5)
+)
+
+(part2)

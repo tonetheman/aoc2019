@@ -9,17 +9,20 @@
 (define (opterm? n) (= n 99))
 (define (opterm-len) 1)
 
+;; new opcodes for day 5
 (define (opinput? n) (= n 3))
 (define opinput-len 2)
 
 (define (opoutput? n) (= n 4))
 (define opoutput-len 2)
 
-(define (runprogram inp noun verb)
+
+;;(define (runprogram inp noun verb)
+(define (runprogram inp input-to-program)
  
-    ;;(vector-set! inp 1 noun)
-    ;;(vector-set! inp 2 verb)
-    
+    ;; this should be set with opcode 4
+    (define output-to-program #f)
+
     (let loop ([ip 0])
         (if (> (vector-length inp) ip)
             (cond
@@ -48,11 +51,18 @@
                     (loop (+ ip (vector-length inp)))]
                 [(opinput? (vector-ref inp ip))
                     (define arg1 (vector-ref inp (+ 1 ip)))
-                    #f
+                    (printf "opinput called ~a\n" arg1)
+                    ;; need to store the input variable
+                    ;; passed into the function
+                    ;; in this place in memory
+                    (vector-set! inp arg1 input-to-program)         
+                    (loop (+ ip opinput-len))
                 ]
                 [(opoutput? (vector-ref inp ip))
                     (define arg1 (vector-ref inp (+ 1 ip)))
-                    #f                
+                    (printf "op output called ~a\n" arg1)
+                    (set! output-to-program (vector-ref inp arg1))
+                    (loop (+ ip opoutput-len))
                 ]
                 [else (println "nope")]
             )
@@ -61,7 +71,8 @@
     )
     ;; return what is at pos 0
     ;; as output
-    (vector-ref inp 0)
+    ;; (vector-ref inp 0)
+    (printf "the output variable is set to ~a\n" output-to-program)
 )
 
 (define (part1)
@@ -113,9 +124,35 @@
 )
 
 ;; (part2)
+(define (old-part2)
+    (define s "1101,100,-1,4,0")
+    (define inp (list->vector (map string->number (string-split s ","))))
+    (runprogram (vector-copy inp) 1 1)
+    (get-opcode 12302)
+)
 
-(define s "1101,100,-1,4,0")
-(define inp (list->vector (map string->number (string-split s ","))))
-(runprogram (vector-copy inp) 1 1)
 
-(get-opcode 12302)
+(define (testopcode3)
+    (define instr (make-vector 100))
+    (vector-set! instr 0 3)
+    (vector-set! instr 1 10)
+    (vector-set! instr 2 99)
+    (runprogram instr 80)
+    (println instr)
+)
+
+(define (testopcode4)
+    (define instr (make-vector 100))
+    (vector-set! instr 0 3) ;; take input
+    (vector-set! instr 1 10) ;; store in 10
+    (vector-set! instr 2 4) ;; set output var
+    (vector-set! instr 3 0) ;; to whatever is in 0
+    (vector-set! instr 4 99) ;; terminate
+    (println "program passed in")
+    (println instr)
+    (runprogram instr 80)
+    (println instr)
+)
+
+(println "before testopcode4")
+(testopcode4)

@@ -48,4 +48,44 @@
 )
 (printf "lowest is ~a\n" lowest)
 
-(define final-image (make-vector 6))
+(define final-image (make-vector (* w h)))
+(for ([i (* w h)])
+    ;; current pixel index is i
+    (define current-pixel-color 2) ;; transparent default
+    (for ([j layers])
+        (define current-pixel-in-layer (vector-ref j i))
+        (cond
+            [(= current-pixel-color 2) ;; current pixel is transparent
+                (if (or (= current-pixel-in-layer 1) (= current-pixel-in-layer 0))
+                    (set! current-pixel-color current-pixel-in-layer)
+                    #f
+                )
+            ]
+            [(= current-pixel-color 1)
+                #f    
+            ]
+            [(= current-pixel-color 2)
+                #f
+            ]
+        )
+    )
+    (vector-set! final-image i current-pixel-color)
+)
+
+(println final-image)
+(define outf (open-output-file "test.ppm" #:mode 'text #:exists 'replace))
+(printf "P3\n")
+(printf "~a ~a\n" w h)
+(println 1)
+(define counter1 0)
+(for ([i h])
+    (for ([j w])
+        (if (= 0 (vector-ref final-image counter1))
+            (printf "0 0 0 ")
+            (printf "1 1 1 ")
+        )
+        (set! counter1 (add1 counter1))
+    )
+    (printf "\n")
+)
+(close-output-port outf)

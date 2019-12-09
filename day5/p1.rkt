@@ -17,6 +17,21 @@
 (define opoutput-len 2)
 
 
+(define (tranlate-opcode n)
+    (define s (~r n #:min-width 5 #:pad-string "0"))
+    ;;(println s)
+    ;;(println (string-length s))
+    (define opcode (string->number (substring s 3 5)))
+    (define param1mode (string->number (substring s 2 3)))
+    (define param2mode (string->number (substring s 1 2)))
+    (define param3mode (string->number (substring s 0 1)))
+    (printf "\topecode is ~a\n" opcode)
+    (printf "\tparam1mode is ~a\n" param1mode)
+    (printf "\tparam2mode is ~a\n" param2mode)
+    (printf "\tparam3mode is ~a\n" param3mode)
+    (list opcode param1mode param2mode param3mode)
+)
+
 ;;(define (runprogram inp noun verb)
 (define (runprogram inp input-to-program)
  
@@ -25,57 +40,113 @@
 
     (let loop ([ip 0])
         (if (> (vector-length inp) ip)
-            (cond
-                [(opadd? (vector-ref inp ip))
-                    ;; (printf "opadd is called ~a\n" ip)
-                    (define arg1 (vector-ref inp (+ 1 ip)))
-                    (define arg2 (vector-ref inp (+ 2 ip)))
-                    (define output (vector-ref inp (+ 3 ip)))
-                    ;; (printf "\t~a ~a ~a\n" arg1 arg2 output)
-                    (vector-set! inp output (+ (vector-ref inp arg1) 
-                        (vector-ref inp arg2)))
-                    (loop (+ ip (opadd-len)))]
-                [(opmult? (vector-ref inp ip))
-                    ;; (printf "opmult is called ~a\n" ip)
-                    (define arg1 (vector-ref inp (+ 1 ip)))
-                    (define arg2 (vector-ref inp (+ 2 ip)))
-                    (define output (vector-ref inp (+ 3 ip)))
-                    ;; (printf "\t~a ~a ~a\n" arg1 arg2 output)
-                    (vector-set! inp output (* (vector-ref inp arg1) 
-                        (vector-ref inp arg2)))
-                    (loop (+ ip (opmult-len)))]
-                [(opterm? (vector-ref inp ip))
-                    ;;(printf "terminate!\n")
-                    ;; this is a cheat to push the ip way out
-                    ;; that way the machine will stop
-                    (loop (+ ip (vector-length inp)))]
-                [(opinput? (vector-ref inp ip))
-                    (define arg1 (vector-ref inp (+ 1 ip)))
-                    (printf "opinput called ~a\n" arg1)
-                    ;; need to store the input variable
-                    ;; passed into the function
-                    ;; in this place in memory
-                    (vector-set! inp arg1 input-to-program)         
-                    (loop (+ ip opinput-len))
-                ]
-                [(opoutput? (vector-ref inp ip))
-                    (define arg1 (vector-ref inp (+ 1 ip)))
-                    (printf "op output called ~a\n" arg1)
-                    (set! output-to-program (vector-ref inp arg1))
-                    (loop (+ ip opoutput-len))
-                ]
-                [else (println "nope")]
-            )
+            (let ([_opcode (vector-ref inp ip)])
+                (match-let ([(list opcode pm1 pm2 pm3) (tranlate-opcode _opcode)])
+
+                    (cond
+                        [(opadd? opcode)
+                            ;; (printf "opadd is called ~a\n" ip)
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (define arg2 (vector-ref inp (+ 2 ip)))
+                            (define output (vector-ref inp (+ 3 ip)))
+                            ;; (printf "\t~a ~a ~a\n" arg1 arg2 output)
+                            (define a1
+                                (cond
+                                    [(= pm1 0)
+                                        (vector-ref inp arg1)
+                                    ]
+                                    [(= pm1 1)
+                                        arg1
+                                    ]
+                                )
+                            )
+                            (define a2
+                                (cond
+                                    [(= pm2 0)
+                                        (vector-ref inp arg2)
+                                    ]
+                                    [(= pm2 1)
+                                        arg2
+                                    ]
+                                )
+                            )
+                            (vector-set! inp output (+ a1 a2))
+                            (loop (+ ip (opadd-len)))]
+                        [(opmult? opcode)
+                            ;; (printf "opmult is called ~a\n" ip)
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (define arg2 (vector-ref inp (+ 2 ip)))
+                            (define output (vector-ref inp (+ 3 ip)))
+                            ;; (printf "\t~a ~a ~a\n" arg1 arg2 output)
+
+                            (define a1
+                                (cond
+                                    [(= pm1 0)
+                                        (vector-ref inp arg1)
+                                    ]
+                                    [(= pm1 1)
+                                        arg1
+                                    ]
+                                )
+                            )
+                            (define a2
+                                (cond
+                                    [(= pm2 0)
+                                        (vector-ref inp arg2)
+                                    ]
+                                    [(= pm2 1)
+                                        arg2
+                                    ]
+                                )
+                            )
+
+
+                            (vector-set! inp output (* a1 a2))
+                            (loop (+ ip (opmult-len)))]
+                        [(opterm? opcode)
+                            ;;(printf "terminate!\n")
+                            ;; this is a cheat to push the ip way out
+                            ;; that way the machine will stop
+                            (loop (+ ip (vector-length inp)))]
+                        [(opinput? opcode)
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (printf "opinput called ~a\n" arg1)
+                            ;; need to store the input variable
+                            ;; passed into the function
+                            ;; in this place in memory
+                            (vector-set! inp arg1 input-to-program)         
+                            (loop (+ ip opinput-len))
+                        ]
+                        [(opoutput? opcode)
+                            (define arg1 (vector-ref inp (+ 1 ip)))
+                            (printf "op output called ~a\n" arg1)
+                            (set! output-to-program (vector-ref inp arg1))
+                            (loop (+ ip opoutput-len))
+                        ]
+                        [else (println "nope")]
+                    )
+
+
+
+
+
+
+
+
+
+                ) ;; end of match-let
+            ) ;; end of let
             #f
-        )
-    )
+        ) ;; end of if
+    ) ;; end of let loop
+
     ;; return what is at pos 0
     ;; as output
     ;; (vector-ref inp 0)
     (printf "the output variable is set to ~a\n" output-to-program)
 )
 
-(define (part1)
+(define (oldpart1)
     (define s (file->string "data.txt"))
     ;; (define s "1,9,10,3,2,3,11,0,99,30,40,50")
     ;;(define s "1,1,1,4,99,5,6,0,99")
@@ -87,7 +158,7 @@
 )
 
 
-(define (part2)
+(define (oldpart2)
     (define s (file->string "data.txt"))
 
     (define inp
@@ -154,5 +225,45 @@
     (println instr)
 )
 
-(println "before testopcode4")
-(testopcode4)
+(define (test-tranop)
+    (tranlate-opcode 1002)
+    (match-let ([(list opcode p1 p2 p3) (tranlate-opcode 12345)])
+        (println opcode)
+        (println p3)
+    )
+)
+
+(define (test5)
+
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 1002 4 3 4 33)])
+        (vector-set! instr counter i)
+        (set! counter (+ counter 1))
+    )
+    (println instr)
+    (runprogram instr 0)
+)
+
+(define (test6)
+    (define instr (make-vector 100))
+    (define counter 0)
+    (for ([i (list 1101 100 -1 4 0 99)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (runprogram instr 0)
+    (println instr)
+)
+
+(define (part1)
+    (define s (file->string "data.txt"))
+    (define inp
+        (list->vector (map string->number (string-split s ",")))
+    )
+    (println inp)
+    (runprogram (vector-copy inp) 1)
+)
+
+
+(part1)

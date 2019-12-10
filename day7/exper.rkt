@@ -219,6 +219,37 @@
     )
 )
  
+(define (handle-oplessthan m pm1 pm2 pm3)
+    (printf "oplessthan called\n")
+    (define arg1 (vector-ref (machine-memory m) (+ 1 (machine-ip m))))
+    (define arg2 (vector-ref (machine-memory m) (+ 2 (machine-ip m))))
+    (define output (vector-ref (machine-memory m) (+ 3 (machine-ip m))))
+    (define a1
+        (cond
+            [(= pm1 0)
+                (vector-ref (machine-memory m) arg1)
+            ]
+            [(= pm1 1)
+                arg1
+            ]
+        )
+    )
+    (define a2
+        (cond
+            [(= pm2 0)
+                (vector-ref (machine-memory m) arg2)
+            ]
+            [(= pm2 1)
+                arg2
+            ]
+        )
+    )
+    (if (< a1 a2)
+        (vector-set! (machine-memory m) output 1)
+        (vector-set! (machine-memory m) output 0)
+    )
+    (set-machine-ip! m (+ (machine-ip m) (oplessthan-len)))
+)
 
 (define (run-cycle m)
     (let ([_opcode (vector-ref (machine-memory m) (machine-ip m))])
@@ -247,6 +278,9 @@
                 ]
                 [opjmpiffalse? opcode
                     (handle-opjmpiffalse m pm1 pm2 pm3)
+                ]
+                [(oplessthan? opcode)
+                    (handle-oplessthan m pm1 pm2 pm3)
                 ]
 
 

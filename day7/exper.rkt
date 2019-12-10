@@ -332,7 +332,7 @@
     ;; TODO: this test is to make sure
     ;; a machine will block if there is no input
     ;; available to the machine
-
+    (println "not done yet")
 )
 
 

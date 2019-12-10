@@ -27,7 +27,12 @@
     (not (= n 0))
 )
 
-(struct machine (memory ip terminated input output) #:mutable )
+(struct cpuflags (input-blocked) #:mutable)
+(struct machine (memory ip terminated input output flags) #:mutable )
+
+;; (define (clear-flags m)
+;;     (set-cpuflags-input-blocked! (machine-flags m) #f)
+;; )
 
 (define (repr m)
     (printf "ip is ~a\n" (machine-ip m))
@@ -114,9 +119,12 @@
     ;; THIS BLOCKS THE MACHINE UNTIL WE GET INPUT
 
     (if (empty? machine-input)
-        #f ;; do nothing no input
-            ;; this is really blocking since
-            ;; we are not going to increment the ip
+        ;; mark the machine as input blocked
+        ;; do nothing no input
+        ;; this is really blocking since
+        ;; we are not going to increment the ip
+        (set-cpuflags-input-blocked! (machine-flags m) #t)
+        ;; otherwise do some work
         (let ([arg1 (vector-ref (machine-memory m) (+ 1 (machine-ip m)))])
             ;; need to store the input variable
             ;; passed into the function
@@ -229,6 +237,7 @@
      #f ;; terminated
      '() ;; input
      #f ;; output
+     (cpuflags #f #f)
      )
 )
 

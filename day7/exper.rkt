@@ -13,13 +13,17 @@
 (define (opinput? n) (= n 3))
 (define opinput-len 2)
 
-(struct machine (memory ip terminated input) #:mutable )
+(define (opoutput? n) (= n 4))
+(define opoutput-len 2)
+
+(struct machine (memory ip terminated input output) #:mutable )
 
 (define (repr m)
     (printf "ip is ~a\n" (machine-ip m))
     (printf "term is ~a\n" (machine-terminated m))
     (printf "memory is ~a\n" (machine-memory m))
     (printf "input is ~a\n" (machine-input m))
+    (printf "output is ~a\n" (machine-output m))
 )
 
 (define (tranlate-opcode n)
@@ -97,7 +101,7 @@
 (define (handle-opinput m pm1 pm2 pm3)
 
     ;; THIS BLOCKS THE MACHINE UNTIL WE GET INPUT
-    
+
     (if (empty? machine-input)
         #f ;; do nothing no input
             ;; this is really blocking since
@@ -121,6 +125,23 @@
     ) ;; end of if
 )
 
+(define (handle-opoutput m pm1 pm2 pm3)
+    (define arg1 (vector-ref (machine-memory m) (+ 1 (machine-ip m))))
+
+    (define a1
+        (cond
+            [(= pm1 0)
+                (vector-ref (machine-memory m) arg1)
+            ]
+            [(= pm1 1)
+                arg1
+            ]
+        )
+    )
+
+    (set-machine-output! m a1)
+    (set-machine-ip! m (+ (machine-ip m) opoutput-len))
+)
 
 (define (run-cycle m)
     (let ([_opcode (vector-ref (machine-memory m) (machine-ip m))])
@@ -141,7 +162,9 @@
                 [(opinput? opcode)
                     (handle-opinput m pm1 pm2 pm3)
                 ]
-
+                [(opoutput? opcode)
+                    (handle-opoutput m pm1 pm2 pm3)
+                ]
             ) ;; end of cond
 
         ) ;; end  of match-let
@@ -160,6 +183,7 @@
      0 ;; instruction pointer 
      #f ;; terminated
      '() ;; input
+     #f ;; output
      )
 )
 
@@ -204,5 +228,24 @@
     (repr computer)
 )
 
+(define (test3)
+    (define computer (make-computer))
+    (define instr (make-vector 20))
+    (define counter 0)
+    (for ([i (list 3 15 4 15 99)])
+        (vector-set! instr counter i)
+        (set! counter (add1 counter))
+    )
+    (set-machine-memory! computer instr)
+    (add-input computer 42)
+    (printf "current input  ~a\n" (machine-input computer))
+
+    (cycle computer)
+    (repr computer)
+    (cycle computer)
+    (repr computer)
+)
+
 ;; (test1)
-(test2)
+;; (test2)
+(test3)

@@ -12,9 +12,20 @@
 ;; new opcodes  or day 5
 (define (opinput? n) (= n 3))
 (define opinput-len 2)
-
 (define (opoutput? n) (= n 4))
 (define opoutput-len 2)
+(define (opjmpiftrue? n) (= n 5))
+(define opjmpiftrue-len 3)
+(define (opjmpiffalse? n) (= n 6))
+(define opjmpiffalse-len 3)
+(define (oplessthan? n) (= n 7))
+(define oplessthan-len 4)
+(define (opequals? n) (= n 8))
+(define opequals-len 4)
+
+(define (is-not-zero n)
+    (not (= n 0))
+)
 
 (struct machine (memory ip terminated input output) #:mutable )
 
@@ -142,6 +153,34 @@
     (set-machine-output! m a1)
     (set-machine-ip! m (+ (machine-ip m) opoutput-len))
 )
+(define (handle-opjmpiftrue m pm1 pm2 pm3)
+    (define arg1 (vector-ref (machine-memory m) (+ 1 (machine-ip m))))
+    (define arg2 (vector-ref (machine-memory m) (+ 2 (machine-ip m))))
+    (define a1
+        (cond
+            [(= pm1 0)
+                (vector-ref (machine-memory m) arg1)
+            ]
+            [(= pm1 1)
+                arg1
+            ]
+        )
+    )
+    (define a2
+        (cond
+            [(= pm2 0)
+                (vector-ref (machine-memory m) arg2)
+            ]
+            [(= pm2 1)
+                arg2
+            ]
+        )
+    )
+    (if (is-not-zero a1)
+        (set-machine-ip! m a2)
+        (set-machine-ip! m (+ (machine-ip m) opjmpiftrue-len))
+    )
+)
 
 (define (run-cycle m)
     (let ([_opcode (vector-ref (machine-memory m) (machine-ip m))])
@@ -165,6 +204,12 @@
                 [(opoutput? opcode)
                     (handle-opoutput m pm1 pm2 pm3)
                 ]
+                [(opjmpiftrue? opcode)
+                    (handle-opjmpiftrue m pm1 pm2 pm3)        
+                ]
+
+
+
             ) ;; end of cond
 
         ) ;; end  of match-let

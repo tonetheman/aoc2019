@@ -27,12 +27,8 @@
     (not (= n 0))
 )
 
-(struct cpuflags (inputblocked) #:mutable)
+(struct cpuflags (inputblocked outputblocked) #:mutable)
 (struct machine (memory ip terminated input output flags) #:mutable )
-
-;; (define (clear-flags m)
-;;     (set-cpuflags-input-blocked! (machine-flags m) #f)
-;; )
 
 (define (repr m)
     (printf "ip is ~a\n" (machine-ip m))
@@ -159,6 +155,7 @@
     )
 
     (set-machine-output! m a1)
+    (set-cpuflags-outputblocked! (machine-flags m) #t)
     (set-machine-ip! m (+ (machine-ip m) opoutput-len))
 )
 (define (handle-opjmpiftrue m pm1 pm2 pm3)
@@ -328,6 +325,8 @@
 (define (cycle m)
     (if (machine-terminated m)
         (println "warning: machine is terminated no action taken")
+        ;; TODO:
+        ;; do i need to block on input and output here?
         (run-cycle m)
     )
 )
@@ -338,7 +337,7 @@
      #f ;; terminated
      '() ;; input
      #f ;; output
-     (cpuflags #f)
+     (cpuflags #f #f)
      )
 )
 
@@ -436,7 +435,10 @@
     (println "not done yet")
 )
 
-
+(define (unittest1)
+    (define s "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5")
+    (println s)
+)
 
 ;; (test1)
 ;; (test2)

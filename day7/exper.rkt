@@ -122,6 +122,10 @@
         (set-cpuflags-inputblocked! (machine-flags m) #t)
         ;; otherwise do some work
         (let ([arg1 (vector-ref (machine-memory m) (+ 1 (machine-ip m)))])
+            ;; set the CPU flag back to off
+            ;; we are no longer blocked by input
+            (set-cpuflags-inputblocked! (machine-flags m) #f)
+
             ;; need to store the input variable
             ;; passed into the function
             ;; in this place in memory

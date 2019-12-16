@@ -66,14 +66,16 @@
 
 
 (define (runone list-inp)
-    (define tmp '())
+    (define tmp (make-vector (length list-inp)))
+    ;; (define tmp '())
     (for ([i (in-naturals 1)]
         [iv list-inp])
         (define current-position i)
-        (set! tmp (append tmp (list (testcase list-inp current-position))))
+        ;;(set! tmp (append tmp (list (testcase list-inp current-position))))
+        (vector-set! tmp (- i 1) (testcase list-inp current-position))
         )
     ;;(println tmp)
-    tmp
+    (vector->list tmp)
 )
 
 (define (example1)
@@ -121,4 +123,15 @@
 ;;(example1)
 ;;(example2)
 ;;(example3)
-(example4)
+;;(example4)
+(define (part1)
+    (define inp (file->string "data.txt"))
+    (define list-inp (parse-input inp))
+    (for ([i 100])
+        (define next1 (runone list-inp))
+        (println next1)
+        (set! list-inp next1)
+    )    
+)
+
+(part1)

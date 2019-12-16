@@ -59,17 +59,66 @@
 
     (set! final-res (modulo (abs final-res) 10))
 
-    (printf "final res is ~a\n" final-res)
+    ;;(printf "final res is ~a\n" final-res)
     ;; take the last digit only
     final-res   
 )
 
-(define inp "12345678")
-(define list-inp (parse-input inp))
-(define tmp '())
-(for ([i (in-naturals 1)]
-    [iv list-inp])
-    (define current-position i)
-    (set! tmp (append tmp (list (testcase list-inp current-position))))
+
+(define (runone list-inp)
+    (define tmp '())
+    (for ([i (in-naturals 1)]
+        [iv list-inp])
+        (define current-position i)
+        (set! tmp (append tmp (list (testcase list-inp current-position))))
+        )
+    ;;(println tmp)
+    tmp
+)
+
+(define (example1)
+    (define inp "12345678")
+    (define list-inp (parse-input inp))
+
+    (for ([i 4])
+        (define next1 (runone list-inp))
+        (println next1)
+        (set! list-inp next1)
     )
-(println tmp)
+
+)
+
+(define (example2)
+    (define inp "80871224585914546619083218645595")
+    (define list-inp (parse-input inp))
+    (for ([i 100])
+        (define next1 (runone list-inp))
+        (println next1)
+        (set! list-inp next1)
+    )
+    
+)
+
+(define (example3)
+    (define inp "19617804207202209144916044189917")
+    (define list-inp (parse-input inp))
+    (for ([i 100])
+        (define next1 (runone list-inp))
+        (println next1)
+        (set! list-inp next1)
+    )
+)
+
+(define (example4)
+    (define inp "69317163492948606335995924319873")
+    (define list-inp (parse-input inp))
+    (for ([i 100])
+        (define next1 (runone list-inp))
+        (println next1)
+        (set! list-inp next1)
+    )
+)
+;;(example1)
+;;(example2)
+;;(example3)
+(example4)

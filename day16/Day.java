@@ -62,6 +62,28 @@ public class Day {
         return al;
     }
 
+    public int testcase(int[] input, int cp) {
+        //System.out.println("testcase starts to build pat...");
+        ArrayList<Integer> pat = buildpat(cp+1);
+        ArrayList<Integer> shpat = buildshiftpat(pat);
+        //System.out.println("testcase finishes building pat");
+        //System.out.println("pat : " + pat);
+        //System.out.println("shpat : " + shpat);
+        //System.out.println("test starting to iterate...");
+        int res = 0;
+        for(int i=0;i<input.length;i++) {
+            int index = crazy(i,pat,shpat);
+            //System.out.println("\t i : " + i + " index: " + index);
+            int tmp = input[i] * index;
+            //System.out.println("\t" + input.get(i) + " " + tmp);
+            res += tmp;
+        }
+        //System.out.println("testcase returning");
+        //System.out.println("res: " + res);
+        return Math.abs(res) % 10;
+    }
+
+    /*
     public int testcase(ArrayList<Integer> input, int cp) {
         //System.out.println("testcase called cp: " + cp);
         ArrayList<Integer> pat = buildpat(cp+1);
@@ -79,16 +101,34 @@ public class Day {
         //System.out.println("res: " + res);
         return Math.abs(res) % 10;
     }
+    */
 
+    public int[] runone(int[] input) {
+        System.out.println("runone starting allocating al...");
+        int[] al = new int[input.length];
+        System.out.println("starting runone testcases...");
+        for(int i=0;i<input.length;i++) {
+            al[i] = testcase(input,i);
+            if ((i%100)==0) {
+                System.out.print("*");
+            }
+        }
+        System.out.println("runone returning al");
+        return al;
+    }
+
+    /*
     public ArrayList<Integer> runone(ArrayList<Integer> input) {
-        ArrayList<Integer> al = new ArrayList<Integer>();
+        ArrayList<Integer> al = new ArrayList<Integer>(input.size());
 
         for(int i=0;i<input.size();i++) {
             al.add(testcase(input,i));
         }
         return al;
     }
+    */
 
+    /*
     public void example2() {
         String inp = "80871224585914546619083218645595";
         ArrayList<Integer> al_input = parseInput(inp);
@@ -100,7 +140,21 @@ public class Day {
             }
         }
     }
-
+    */
+    /*
+    void example3() {
+        String inp = "19617804207202209144916044189917";
+        ArrayList<Integer> al_input = parseInput(inp);
+        for(int i=0;i<100;i++) {
+            ArrayList<Integer> res = runone(al_input);
+            System.out.println(res);
+            for (int j=0;j<res.size();j++) {
+                al_input.set(j, res.get(j));
+            }
+        }
+    }
+    */
+    /*
     public void example1() {
         String inp = "12345678";
         ArrayList<Integer> al_input = parseInput(inp);
@@ -116,15 +170,16 @@ public class Day {
             }
         }        
     }
-
+    */
+    /*
     public void example4() {
-        String inp = "03036732577212944063491565474664";
+        String inp = "69317163492948606335995924319873";
         ArrayList<Integer> al_input = parseInput(inp);
         System.out.println(al_input);
         //ArrayList<Integer> res = runone(al_input);
         //System.out.println(res);
         
-        for(int i=0;i<10000;i++) {
+        for(int i=0;i<100;i++) {
             ArrayList<Integer> res = runone(al_input);
             System.out.println(res);
             for (int j=0;j<res.size();j++) {
@@ -132,7 +187,8 @@ public class Day {
             }
         }
     }
-
+    */
+    /*
     public void part1() {
         String inp = readfromfile("data.txt");
         ArrayList<Integer> al_input = parseInput(inp);
@@ -144,6 +200,42 @@ public class Day {
                 al_input.set(j, res.get(j));
             }
         }
+    }
+    */
+    public void part2() {
+        String inp = readfromfile("data.txt");
+        ArrayList<Integer> al_input = parseInput(inp);
+        System.out.println("creating big array...");
+        //ArrayList<Integer> big = new ArrayList<>(al_input.size() * 10000);
+        int[] big = new int[al_input.size() * 10000];
+
+        System.out.println("filling big array...");
+        for(int i=0;i<10000;i++) {
+            for (int j=0;j<al_input.size();j++) {
+                big[i] = al_input.get(j);
+                //big.add(al_input.get(j));
+            }
+        }
+        //System.out.println("size of big array: " + big.size());
+
+        System.out.println("running algo now...");
+        for(int i=0;i<100;i++) {
+            System.out.println("starting round: " + i);
+            int[] res = runone(big);
+            //System.out.println(res);
+            System.out.println("copying over res for round: " + i);
+            for (int j=0;j<res.length;j++) {
+                big[j] = res[j];
+                //big.set(j, res.get(j));
+            }
+        }
+
+        System.out.println("printing first seven digits...");
+        for(int i=0;i<7;i++) {
+            System.out.print(big[i]);
+        }
+        System.out.println();
+
 
     }
 
@@ -152,7 +244,8 @@ public class Day {
         //app.example1();
         //app.part1();
         //app.example2();
-        app.example4();
-
+        //app.example3();
+        //app.example4();
+        app.part2();
     }
 }

@@ -114,8 +114,23 @@ public class Day {
             for (int j=0;j<res.size();j++) {
                 al_input.set(j, res.get(j));
             }
-        }
+        }        
+    }
+
+    public void example4() {
+        String inp = "03036732577212944063491565474664";
+        ArrayList<Integer> al_input = parseInput(inp);
+        System.out.println(al_input);
+        //ArrayList<Integer> res = runone(al_input);
+        //System.out.println(res);
         
+        for(int i=0;i<10000;i++) {
+            ArrayList<Integer> res = runone(al_input);
+            System.out.println(res);
+            for (int j=0;j<res.size();j++) {
+                al_input.set(j, res.get(j));
+            }
+        }
     }
 
     public void part1() {
@@ -135,8 +150,9 @@ public class Day {
     public static void main(String[] args) {
         Day app = new Day();
         //app.example1();
-        app.part1();
+        //app.part1();
         //app.example2();
+        app.example4();
 
     }
 }

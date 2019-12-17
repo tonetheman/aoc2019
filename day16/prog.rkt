@@ -18,7 +18,7 @@
     (for ([i n])
         (set! tmp (append tmp (list (fourth base))))
     )
-    tmp
+    (list->vector tmp)
 )
 
 (define (parse-input inp)
@@ -30,25 +30,28 @@
     (map m0 (map char->integer (string->list inp)))
 )
 
-(define (crazy i current-pat)
+(define (crazy i current-pat weird-pat)
     ;;(printf "\tcrazy called ~a ~a\n" i (length current-pat))
     ;;(printf "\tis i? ~a\n" (< i (- (length current-pat) 1)))
-    (if (< i (- (length current-pat) 1))
-        (list-ref (rest current-pat) (modulo i (length current-pat)))
-        (list-ref current-pat (modulo (- i (- (length current-pat) 1)) (length current-pat)))
+    (define cl (vector-length current-pat))
+    (if (< i (- (vector-length current-pat) 1))
+        (vector-ref weird-pat (modulo i cl))
+        (vector-ref current-pat (modulo (- i (- cl 1)) cl))
     )
 
 )
 
 (define (testcase inp current-position)
     (define current-pat (build-pat current-position))
+    (define weird-pat (vector-drop current-pat 1))
+
     ;;(printf "the input string ~a\n" inp)
     ;;(printf "the position is ~a\n" current-position)
     ;;(printf "the current pat for pos is ~a\n" current-pat)
     (define final-res 0)
     (for ([i (in-naturals 0)]
         [iv inp])
-        (define index (crazy i current-pat))
+        (define index (crazy i current-pat weird-pat))
         ;;(printf "iv: ~a index: ~a result: ~a\n" iv 
         ;;    index
         ;;    (* iv index)

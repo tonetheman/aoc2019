@@ -53,13 +53,14 @@ public class Day {
         return al;
     }
 
-    public int crazy(int i, ArrayList<Integer> pat, ArrayList<Integer> shpat) {
-        int cl = shpat.size();
+    public int crazy(int i, ArrayList<Integer> pat, int patsize,
+        ArrayList<Integer> shpat, int shpatsize) {
+        int cl = shpatsize;
         if (i<cl) {
             return shpat.get(i);
         } else {
             i -= cl;
-            return pat.get(i%pat.size());
+            return pat.get(i%patsize);
         }
     }
     
@@ -77,13 +78,22 @@ public class Day {
         //System.out.println("testcase starts to build pat...");
         ArrayList<Integer> pat = buildpat(cp+1);
         ArrayList<Integer> shpat = buildshiftpat(cp+1,pat);
+        int patsize = pat.size();
+        int shpatsize = shpat.size();
+
         //System.out.println("testcase finishes building pat");
         //System.out.println("pat : " + pat);
         //System.out.println("shpat : " + shpat);
         //System.out.println("test starting to iterate...");
         int res = 0;
         for(int i=0;i<input.length;i++) {
-            int index = crazy(i,pat,shpat);
+            //int index = crazy(i,pat,patsize,shpat,shpatsize);
+            int index;
+            if (i<shpatsize) {
+                index = shpat.get(i);
+            } else {
+                index = pat.get((i-shpatsize)%patsize);
+            }
             //System.out.println("\t i : " + i + " index: " + index);
             int tmp = input[i] * index;
             //System.out.println("\t" + input.get(i) + " " + tmp);
@@ -91,7 +101,10 @@ public class Day {
         }
         //System.out.println("testcase returning");
         //System.out.println("res: " + res);
-        return Math.abs(res) % 10;
+        if (res<0) {
+            res *= -1;
+        }
+        return res % 10;
     }
 
     /*

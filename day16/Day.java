@@ -260,6 +260,7 @@ public class Day {
                 big[j] = res[j];
                 //big.set(j, res.get(j));
             }
+            res = null; // trying to help GC
         }
 
         System.out.println("printing first seven digits...");
@@ -271,6 +272,33 @@ public class Day {
 
     }
 
+    public void part2_example1() {
+        String inp = "03036732577212944063491565474664";
+        ArrayList<Integer> al_input = parseInput(inp);
+        System.out.println(al_input);
+        //ArrayList<Integer> res = runone(al_input);
+        //System.out.println(res);
+        int[] big = new int[al_input.size() * 10000];
+
+        System.out.println("filling big array...");
+        for(int i=0;i<10000;i++) {
+            for (int j=0;j<al_input.size();j++) {
+                big[i] = al_input.get(j);
+                //big.add(al_input.get(j));
+            }
+        }
+
+        for(int i=0;i<100;i++) {
+            int[] res = runone(big);
+            System.out.println(res);
+            for (int j=0;j<res.length;j++) {
+                //al_input.set(j, res.get(j));
+                big[j] = res[j];
+            }
+        }
+
+    }
+
     public static void main(String[] args) {
         Day app = new Day();
         //app.example1();
@@ -278,6 +306,7 @@ public class Day {
         //app.example2();
         //app.example3();
         //app.example4();
-        app.part2();
+        //app.part2();
+        app.part2_example1();
     }
 }

@@ -3,8 +3,16 @@ import java.io.*;
 
 public class Day {
 
-    HashMap hmpat = new HashMap<Integer,ArrayList<Integer>>();
-    HashMap hmshpat = new HashMap<Integer,ArrayList<Integer>>();
+    HashMap hmpat = new HashMap<Integer,int[]>();
+    HashMap hmshpat = new HashMap<Integer,int[]>();
+
+    public int[] cvtALtoA(ArrayList<Integer> al) {
+        int[] tmp = new int[al.size()];
+        for(int i=0;i<al.size();i++) {
+            tmp[i] = al.get(i);
+        }
+        return tmp;
+    }
 
     public String readfromfile(String filename) {
         StringBuffer sb = new StringBuffer();
@@ -20,9 +28,9 @@ public class Day {
         return sb.toString();
     }
 
-    public ArrayList<Integer> buildpat(int n) {
+    public int[] buildpat(int n) {
         if (hmpat.containsKey(n)) {
-            return (ArrayList<Integer>)hmpat.get(n);
+            return (int[])hmpat.get(n);
         }
         ArrayList<Integer> al = new ArrayList<Integer>();
         for (int i=0;i<n;i++) {
@@ -37,20 +45,20 @@ public class Day {
         for(int i=0;i<n;i++) {
             al.add(-1);
         }
-        hmpat.put(n,al);
-        return al;
+        hmpat.put(n,cvtALtoA(al));
+        return (int[])hmpat.get(n);
     }
 
-    public ArrayList<Integer> buildshiftpat(int n, ArrayList<Integer> input) {
+    public int[] buildshiftpat(int n, int[] input) {
         if (hmshpat.containsKey(n)) {
-            return (ArrayList<Integer>)hmshpat.get(n);
+            return (int[])hmshpat.get(n);
         }
         ArrayList<Integer> al = new ArrayList<Integer>();
-        for (int i=1;i<input.size();i++) {
-            al.add(input.get(i));
+        for (int i=1;i<input.length;i++) {
+            al.add(input[i]);
         }
-        hmshpat.put(n, al);
-        return al;
+        hmshpat.put(n, cvtALtoA(al));
+        return (int[])hmshpat.get(n);
     }
 
     public int crazy(int i, ArrayList<Integer> pat, int patsize,
@@ -76,10 +84,10 @@ public class Day {
 
     public int testcase(int[] input, int cp) {
         //System.out.println("testcase starts to build pat...");
-        ArrayList<Integer> pat = buildpat(cp+1);
-        ArrayList<Integer> shpat = buildshiftpat(cp+1,pat);
-        int patsize = pat.size();
-        int shpatsize = shpat.size();
+        int[] pat = buildpat(cp+1);
+        int[] shpat = buildshiftpat(cp+1,pat);
+        int patsize = pat.length;
+        int shpatsize = shpat.length;
 
         //System.out.println("testcase finishes building pat");
         //System.out.println("pat : " + pat);
@@ -90,9 +98,9 @@ public class Day {
             //int index = crazy(i,pat,patsize,shpat,shpatsize);
             int index;
             if (i<shpatsize) {
-                index = shpat.get(i);
+                index = shpat[i];
             } else {
-                index = pat.get((i-shpatsize)%patsize);
+                index = pat[(i-shpatsize)%patsize];
             }
             //System.out.println("\t i : " + i + " index: " + index);
             int tmp = input[i] * index;

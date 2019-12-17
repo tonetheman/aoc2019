@@ -43,18 +43,19 @@ public class Day {
 
     public int crazy(int i, ArrayList<Integer> pat, ArrayList<Integer> shpat) {
         int cl = pat.size();
-
+        System.out.println("\tcrazy: cl: " + cl + " i: "+i);
         if (i<(cl-1)) {
-            return shpat.get(i%cl);
+            if (i==0) {
+                return shpat.get(0);
+            }
+            return shpat.get(cl%i);
         } else {
-            return pat.get((i-(cl-1))%cl);
-        }
-
-        //(if (< i (- (vector-length current-pat) 1))
-        //    (vector-ref weird-pat (modulo i cl))
-        //    (vector-ref current-pat (modulo (- i (- cl 1)) cl))
-        //)
-    
+            int tmp = i-(cl-1);
+            if (tmp==0) {
+                return pat.get(0);
+            }
+            return pat.get(cl%tmp);
+        }    
     }
     
     public ArrayList<Integer> parseInput(String inp) {
@@ -118,6 +119,7 @@ public class Day {
     public static void main(String[] args) {
         Day app = new Day();
         app.example1();
-        app.part1();
+        //app.part1();
+        
     }
 }

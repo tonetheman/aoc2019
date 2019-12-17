@@ -3,6 +3,9 @@ import java.io.*;
 
 public class Day {
 
+    HashMap hmpat = new HashMap<Integer,ArrayList<Integer>>();
+    HashMap hmshpat = new HashMap<Integer,ArrayList<Integer>>();
+
     public String readfromfile(String filename) {
         StringBuffer sb = new StringBuffer();
         try {
@@ -18,6 +21,9 @@ public class Day {
     }
 
     public ArrayList<Integer> buildpat(int n) {
+        if (hmpat.containsKey(n)) {
+            return (ArrayList<Integer>)hmpat.get(n);
+        }
         ArrayList<Integer> al = new ArrayList<Integer>();
         for (int i=0;i<n;i++) {
             al.add(0);
@@ -31,14 +37,19 @@ public class Day {
         for(int i=0;i<n;i++) {
             al.add(-1);
         }
+        hmpat.put(n,al);
         return al;
     }
 
-    public ArrayList<Integer> buildshiftpat(ArrayList<Integer> input) {
+    public ArrayList<Integer> buildshiftpat(int n, ArrayList<Integer> input) {
+        if (hmshpat.containsKey(n)) {
+            return (ArrayList<Integer>)hmshpat.get(n);
+        }
         ArrayList<Integer> al = new ArrayList<Integer>();
         for (int i=1;i<input.size();i++) {
             al.add(input.get(i));
         }
+        hmshpat.put(n, al);
         return al;
     }
 
@@ -65,7 +76,7 @@ public class Day {
     public int testcase(int[] input, int cp) {
         //System.out.println("testcase starts to build pat...");
         ArrayList<Integer> pat = buildpat(cp+1);
-        ArrayList<Integer> shpat = buildshiftpat(pat);
+        ArrayList<Integer> shpat = buildshiftpat(cp+1,pat);
         //System.out.println("testcase finishes building pat");
         //System.out.println("pat : " + pat);
         //System.out.println("shpat : " + shpat);

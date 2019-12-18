@@ -1,0 +1,9 @@
+<project name="a">
+
+	<javac
+		includeantruntime="true"
+		srcdir="src"
+		destdir="build">
+	</javac>
+
+</project>

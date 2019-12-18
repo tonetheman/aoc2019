@@ -22,6 +22,7 @@ class Computer {
 	public boolean halted;
 	public int input;
 	public int output;
+	public boolean debug = true;
 
 	public void print_instructions() {
 		System.out.println("hlt: "+ halted);
@@ -87,14 +88,17 @@ class Computer {
 		if (ci==3) {
 			int arg1 = instructions[ip+1];
 			instructions[arg1] = input;
-			System.out.println("input read and stored at " + arg1);
-			//iop.pmodes();
-			//System.exit(0);
+			if (debug) {
+				System.out.println("input read and stored at " + arg1);
+				iop.pmodes();
+			}
 			ip += 2;
-			//System.exit(0);
 		}
 		if (ci==4) {
 			int arg1 = instructions[ip+1];
+			if (debug) {
+				System.out.println("4 - output");
+			}
 			if (iop.p1mode==1) {
 				output = arg1;
 			} else {
@@ -105,6 +109,98 @@ class Computer {
 			//System.out.println("output called!");
 			//iop.pmodes();
 			//System.exit(0);
+		}
+		if ((ci==5)||(ci==6)) { // jmp if true and jmp if false
+			int arg1 = instructions[ip+1];
+			int p1 = 0;
+			if (iop.p1mode==1) {
+				p1 = arg1;
+			} else {
+				p1 = instructions[arg1];
+			}
+
+			int arg2 = instructions[ip+2];
+			int p2;
+			if (iop.p2mode==1) {
+				p2 = arg2;
+			} else {
+				p2 = instructions[arg2];
+			}
+			
+			if (ci==5) { // jmp if true
+				// arg1 is non-zero then adjust ip to p2
+				if (p1!=0) {
+					ip = p2;
+				} else {
+					ip += 3;
+				}
+			} else {
+				// jmp if false
+				if (p1==0) {
+					ip = p2;
+				} else {
+					ip += 3;
+				}
+			}
+		}
+		if (ci==7) { // less than
+			int arg1 = instructions[ip+1];
+			int p1 = 0;
+			if (iop.p1mode==1) {
+				p1 = arg1;
+			} else {
+				p1 = instructions[arg1];
+			}
+
+			int arg2 = instructions[ip+2];
+			int p2;
+			if (iop.p2mode==1) {
+				p2 = arg2;
+			} else {
+				p2 = instructions[arg2];
+			}
+			int arg3 = instructions[ip+3];
+			if (p1<p2) {
+				instructions[arg3] = 1;
+			} else {
+				instructions[arg3] = 0;
+			}
+			ip += 4;
+		}
+		if (ci==8) {
+			if (debug) {
+				System.out.println("8 - equals");
+				iop.pmodes();
+			}
+			
+			int arg1 = instructions[ip+1];
+			int p1 = 0;
+			if (iop.p1mode==1) {
+				p1 = arg1;
+			} else {
+				p1 = instructions[arg1];
+			}
+
+			int arg2 = instructions[ip+2];
+			int p2;
+			if (iop.p2mode==1) {
+				p2 = arg2;
+			} else {
+				p2 = instructions[arg2];
+			}
+			int arg3 = instructions[ip+3];
+			if (debug) {
+				System.out.println("eq p1 p2 arg3 " + p1 + " " + p2 + " " + arg3);
+			}
+			if (p1==p2) {
+				if (debug) {
+					System.out.println("eq setting 1 in arg3 " + arg3);
+				}
+				instructions[arg3] = 1;
+			} else {
+				instructions[arg3] = 0;
+			}
+			ip += 4;
 		}
 		if (ci==99) {
 			System.out.println("system halting");
@@ -170,6 +266,36 @@ public class Main {
 
 	}
 
+	public static void p2test1() {
+		int [] instructions = {3,9,8,9,10,9,4,9,99,-1,8};
+		Computer computer = new Computer(instructions);
+		computer.input = 8;
+		int counter = 0;
+		while (!computer.halted) {
+			computer.print_instructions();
+			computer.cycle();
+			counter++;			
+		}
+
+		System.out.println("output is: " + computer.output);
+	}
+
+	public static void p2test3() {
+		int [] instructions = {3,3,1108,-1,8,3,4,3,99};
+		Computer computer = new Computer(instructions);
+		computer.input = 7;
+		int counter = 0;
+		while (!computer.halted) {
+			computer.print_instructions();
+			computer.cycle();
+			counter++;			
+		}
+
+		System.out.println("output is: " + computer.output);
+	}
+
+	
+
 	public static void digitTest() {
 		int a = 12345;
 		int opcode = a%100;
@@ -186,7 +312,8 @@ public class Main {
 	public static void main(String[] args) {
 		//Main.part1();
 		//digitTest();
-		Main.part2();
+		//Main.part2();
+		Main.p2test3();
 	}
 
 }

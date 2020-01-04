@@ -129,6 +129,105 @@ func (c *Computer) OneCycle() {
 		fmt.Println("OUTPUT SET TO:", c.output)
 		c.ip += 2
 	}
+	if currentInstruction.opcode == 5 {
+		// jmp if true
+		arg1 := c.instructions[c.ip+1]
+		arg2 := c.instructions[c.ip+2]
+		realarg1 := -1
+		if currentInstruction.p1_mode == 0 {
+			realarg1 = c.instructions[arg1]
+		} else {
+			realarg1 = arg1
+		}
+		realarg2 := -1
+		if currentInstruction.p2_mode == 0 {
+			realarg2 = c.instructions[arg2]
+		} else {
+			realarg2 = arg2
+		}
+		if realarg1 != 0 {
+			c.ip = realarg2
+		} else {
+			c.ip += 3
+		}
+	}
+	if currentInstruction.opcode == 6 {
+		// jmp if false
+		arg1 := c.instructions[c.ip+1]
+		arg2 := c.instructions[c.ip+2]
+		realarg1 := -1
+		if currentInstruction.p1_mode == 0 {
+			realarg1 = c.instructions[arg1]
+		} else {
+			realarg1 = arg1
+		}
+		realarg2 := -1
+		if currentInstruction.p2_mode == 0 {
+			realarg2 = c.instructions[arg2]
+		} else {
+			realarg2 = arg2
+		}
+		if realarg1 == 0 {
+			c.ip = realarg2
+		} else {
+			c.ip += 3
+		}
+	}
+	if currentInstruction.opcode == 7 {
+		// less than
+		arg1 := c.instructions[c.ip+1]
+		arg2 := c.instructions[c.ip+2]
+		arg3 := c.instructions[c.ip+3]
+		realarg1 := -1
+		if currentInstruction.p1_mode == 0 {
+			realarg1 = c.instructions[arg1]
+		} else {
+			realarg1 = arg1
+		}
+		realarg2 := -1
+		if currentInstruction.p2_mode == 0 {
+			realarg2 = c.instructions[arg2]
+		} else {
+			realarg2 = arg2
+		}
+		if currentInstruction.p3_mode == 1 {
+			panic("INVALID MODE FOR p3 less than")
+		}
+		if realarg1 < realarg2 {
+			c.instructions[arg3] = 1
+		} else {
+			c.instructions[arg3] = 0
+		}
+		c.ip += 4
+	}
+	if currentInstruction.opcode == 8 {
+		// equals
+		arg1 := c.instructions[c.ip+1]
+		arg2 := c.instructions[c.ip+2]
+		arg3 := c.instructions[c.ip+3]
+		realarg1 := -1
+		if currentInstruction.p1_mode == 0 {
+			realarg1 = c.instructions[arg1]
+		} else {
+			realarg1 = arg1
+		}
+		realarg2 := -1
+		if currentInstruction.p2_mode == 0 {
+			realarg2 = c.instructions[arg2]
+		} else {
+			realarg2 = arg2
+		}
+		if currentInstruction.p3_mode == 1 {
+			panic("INVALID MODE FOR p3 equals")
+		}
+		if realarg1 == realarg2 {
+			c.instructions[arg3] = 1
+		} else {
+			c.instructions[arg3] = 0
+		}
+		c.ip += 4
+	}
+
 	if currentInstruction.opcode == 99 {
 		c.halted = true
 		c.ip++

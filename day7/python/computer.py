@@ -1,4 +1,5 @@
 import sys
+import queue
 
 class OpCode:
     def __init__(self,opcode,p1mode,p2mode,p3mode):
@@ -6,17 +7,26 @@ class OpCode:
         self.p1mode = p1mode
         self.p2mode = p2mode
         self.p3mode = p3mode
+    def pm(self,v):
+        if v==0:
+            return "p"
+        elif v==1:
+            return "i"
+        else:
+            return "?"
     def __repr__(self):
-        return "{0} {1} {2} {3}".format(self.opcode,self.p1mode,self.p2mode,self.p3mode)
+        return "{0} {1} {2} {3}".format(self.opcode,self.pm(self.p1mode),
+            self.pm(self.p2mode),self.pm(self.p3mode))
 
 class Computer:
     def __init__(self):
         self.ip = 0
         self.halt = False
-        self.input = []
+        self.input = queue.Queue()
         self.memory = []
         self.output = None
         self.debug = False
+        self.did_output_this_cycle = False
         for i in range(1024):
             self.memory.append(0)
     def dbg(self,*args):
@@ -39,7 +49,6 @@ class Computer:
         # print(tmp[3:5])
         return OpCode(int(tmp[3:5],base=10), int(tmp[2]), int(tmp[1]), int(tmp[0]))
     def handle_add(self,instr):
-        self.dbg("DBG:ADD",instr)
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         arg3 = self.memory[self.ip+3]
@@ -56,11 +65,11 @@ class Computer:
         if instr.p3mode!=0:
             print("ERR: invalid p3mode in ADD")
             sys.exit(0)
+        self.dbg("DBG:ADD",instr,arg1,arg2,arg3,realarg1,realarg2)
         self.memory[arg3] = realarg1 + realarg2
         self.ip = self.ip + 4
 
     def handle_mult(self,instr):
-        self.dbg("DBG:MULT",instr)
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         arg3 = self.memory[self.ip+3]
@@ -77,36 +86,39 @@ class Computer:
         if instr.p3mode!=0:
             print("ERR: invalid p3mode in MULT")
             sys.exit(0)
+        self.dbg("DBG:MULT",instr,arg1,arg2,arg3,realarg1,realarg2)
+
         self.memory[arg3] = realarg1 * realarg2
         self.ip = self.ip + 4
 
     def take_input(self,input_value):
-        self.input.append(input_value)
+        self.input.put(input_value)
 
     def handle_input(self,instr):
-        self.dbg("DBG:INP")
         arg1 = self.memory[self.ip+1]
         if instr.p1mode!=0:
             print("ERR:p1mode is not 0 on input")
             sys.exit(0)
-        self.memory[arg1] = self.input.pop()
+        input_value = self.input.get()
+        self.dbg("DBG:INP",arg1,input_value)
+        self.memory[arg1] = input_value
         self.ip = self.ip + 2
 
     def handle_output(self,instr):
-        self.dbg("DBG:OUT")
         arg1 = self.memory[self.ip+1]
         if instr.p1mode == 0:
             self.output = self.memory[arg1]
         else:
             self.output = arg1
+        self.dbg("DBG:OUT",instr,self.output)
         self.ip = self.ip + 2
+        self.did_output_this_cycle = True
 
     def handle_term(self,instr):
         self.dbg("DBG:halt called")
         self.halt = True
 
     def handle_jmp_if_true(self,instr):
-        self.dbg("DBG:JMPTRUE")
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         realarg1 = -1
@@ -119,6 +131,8 @@ class Computer:
             realarg2 = self.memory[arg2]
         else:
             realarg2 = arg2
+
+        self.dbg("DBG:JMPTRUE",instr,arg1,arg2,realarg1,realarg2)
 
         if realarg1 != 0:
             self.ip = realarg2
@@ -208,6 +222,9 @@ class Computer:
     def cycle(self):
         if self.halt:
             print("WARN:comp is halted not executing cycle")
+            return
+        
+        self.did_output_this_cycle = False
 
         instr = self.decode_instr(self.memory[self.ip])
         if instr.opcode == 1:
@@ -240,11 +257,28 @@ class Computer:
             index = index + 1
         return True
 
+    def clear_input(self):
+        while not self.input.empty():
+            self.input.get()
+            
+    def check_memory_pos(self,pos,value):
+        if self.memory[pos] == value:
+            print("pass")
+        else:
+            print("fail")
+
+    def run(self):
+        while True:
+            self.cycle()
+            if self.halt:
+                print("normal halt")
+                break
+
     def __repr__(self):
         ts = ""
         ts = ts + "ip: " + str(self.ip)
         ts = ts + "\n"
-        for i in range(16):
+        for i in range(32):
             ts = ts + " " + str(self.memory[i])
         
         return ts

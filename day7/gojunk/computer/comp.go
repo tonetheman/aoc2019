@@ -13,6 +13,7 @@ type Computer struct {
 	halted       bool
 	input        chan int
 	Output       chan int
+	debug        bool
 }
 
 type OpCode struct {
@@ -37,10 +38,12 @@ func MakeOpCode(i int) OpCode {
 
 func MakeComputer() Computer {
 	computer := Computer{}
-	computer.input = make(chan int, 2)
+	computer.input = make(chan int, 20)
 	return computer
 }
-
+func (c *Computer) SetDebug(v bool) {
+	c.debug = v
+}
 func (c *Computer) SetOutputChannel(o chan int) {
 	c.Output = o
 }
@@ -63,9 +66,34 @@ func (c *Computer) Halted() bool {
 	return c.halted
 }
 
+func (c *Computer) EmptyInput() {
+	// empty the input
+	// might have 2 things run this twice
+	select {
+	case _ = <-c.input:
+		if c.debug {
+			fmt.Println("DBG:EmptyInput drained")
+		}
+
+	default:
+	}
+	// and again
+	select {
+	case _ = <-c.input:
+		if c.debug {
+			fmt.Println("DBG:EmptyInput drained")
+		}
+	default:
+	}
+
+}
+
 func (c *Computer) OneCycle() {
 	currentInstruction := MakeOpCode(c.instructions[c.ip])
 	if currentInstruction.opcode == 1 {
+		if c.debug {
+			fmt.Println("DBG:ADD")
+		}
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
 		res := c.instructions[c.ip+3] // never immediate
@@ -88,6 +116,9 @@ func (c *Computer) OneCycle() {
 		c.ip += 4
 	}
 	if currentInstruction.opcode == 2 {
+		if c.debug {
+			fmt.Println("DBG:MULT")
+		}
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
 		res := c.instructions[c.ip+3] // never immediate
@@ -110,6 +141,9 @@ func (c *Computer) OneCycle() {
 		c.ip += 4
 	}
 	if currentInstruction.opcode == 3 {
+		if c.debug {
+			fmt.Println("DBG:INPUT")
+		}
 		arg1 := c.instructions[c.ip+1]
 		if currentInstruction.p1_mode == 0 {
 			// read from the input channel here
@@ -121,11 +155,20 @@ func (c *Computer) OneCycle() {
 		c.ip += 2
 	}
 	if currentInstruction.opcode == 4 {
+		if c.debug {
+			fmt.Println("DBG:OUTPUT")
+		}
 		arg1 := c.instructions[c.ip+1]
 		if currentInstruction.p1_mode == 0 {
 			// output the value at arg1
+			if c.debug {
+				fmt.Println("\tDBG:OUTPUT:p1mode0,", c.instructions[arg1])
+			}
 			c.Output <- c.instructions[arg1]
 		} else {
+			if c.debug {
+				fmt.Println("\tDBG:OUTPUT:p1mode1,", arg1)
+			}
 			c.Output <- arg1
 		}
 		//fmt.Println("OUTPUT SET TO:", c.output)
@@ -135,6 +178,12 @@ func (c *Computer) OneCycle() {
 		// jmp if true
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
+
+		if c.debug {
+			fmt.Println("DBG:JMPTRUE", currentInstruction.p1_mode,
+				currentInstruction.p2_mode, arg1, arg2)
+		}
+
 		realarg1 := -1
 		if currentInstruction.p1_mode == 0 {
 			realarg1 = c.instructions[arg1]
@@ -147,7 +196,13 @@ func (c *Computer) OneCycle() {
 		} else {
 			realarg2 = arg2
 		}
+		if c.debug {
+			fmt.Println("DBG:JMPTRUE:realargs", realarg1, realarg2)
+		}
 		if realarg1 != 0 {
+			if c.debug {
+				fmt.Println("DBG:JMPTRUE:arg1 was not zero setting ip to", realarg2)
+			}
 			c.ip = realarg2
 		} else {
 			c.ip += 3
@@ -155,6 +210,9 @@ func (c *Computer) OneCycle() {
 	}
 	if currentInstruction.opcode == 6 {
 		// jmp if false
+		if c.debug {
+			fmt.Println("DBG:JMPIFFALSE")
+		}
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
 		realarg1 := -1
@@ -177,6 +235,9 @@ func (c *Computer) OneCycle() {
 	}
 	if currentInstruction.opcode == 7 {
 		// less than
+		if c.debug {
+			fmt.Println("DBG:LESSTHAN")
+		}
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
 		arg3 := c.instructions[c.ip+3]
@@ -204,6 +265,9 @@ func (c *Computer) OneCycle() {
 	}
 	if currentInstruction.opcode == 8 {
 		// equals
+		if c.debug {
+			fmt.Println("DBG:EQUALS")
+		}
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
 		arg3 := c.instructions[c.ip+3]
@@ -231,6 +295,9 @@ func (c *Computer) OneCycle() {
 	}
 
 	if currentInstruction.opcode == 99 {
+		if c.debug {
+			fmt.Println("HALT")
+		}
 		c.halted = true
 		c.ip++
 	}

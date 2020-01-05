@@ -104,6 +104,144 @@ func testit(i1, i2, i3, i4, i5 int, program string) int {
 	return currentOutput
 }
 
+func part2_testit(i1, i2, i3, i4, i5 int, program string) int {
+	fmt.Println("checking", i1, i2, i3, i4, i5)
+
+	ampA := computer.MakeComputer()
+	ampA.ReadFromString(program)
+	ampAOutput := make(chan int, 1)
+	ampA.SetOutputChannel(ampAOutput)
+
+	ampB := computer.MakeComputer()
+	ampB.ReadFromString(program)
+	ampBOutput := make(chan int, 1)
+	ampB.SetOutputChannel(ampBOutput)
+
+	ampC := computer.MakeComputer()
+	ampC.ReadFromString(program)
+	ampCOutput := make(chan int, 1)
+	ampC.SetOutputChannel(ampCOutput)
+
+	ampD := computer.MakeComputer()
+	ampD.ReadFromString(program)
+	ampDOutput := make(chan int, 1)
+	ampD.SetOutputChannel(ampDOutput)
+
+	ampE := computer.MakeComputer()
+	ampE.ReadFromString(program)
+	ampEOutput := make(chan int, 1)
+	ampE.SetOutputChannel(ampEOutput)
+
+	currentOutput := 0
+outer:
+	for {
+		fmt.Println("ampA started", i1, currentOutput)
+		ampA.SetDebug(true)
+		ampA.SetInput(i1)
+		ampA.SetInput(currentOutput)
+		fmt.Println("added inputs into ampA")
+	innera:
+		for !ampA.Halted() {
+			fmt.Println("before one cycle ampA")
+			ampA.OneCycle()
+			select {
+			case currentOutput = <-ampA.Output:
+				//fmt.Println("got an output!", currentOutput)
+				//ampA.EmptyInput() // do this in case we did not read 2 values
+				break innera
+			default:
+				//fmt.Println("no output yet a")
+			}
+			//fmt.Println(ampA)
+		}
+		fmt.Println("now going to check if ampA halted")
+		if ampA.Halted() {
+			fmt.Println("ampA really halted")
+			break outer
+		}
+		fmt.Println("ampB started", i2, currentOutput)
+		ampB.SetDebug(true)
+		ampB.SetInput(i2)
+		ampB.SetInput(currentOutput)
+	innerb:
+		for !ampB.Halted() {
+			ampB.OneCycle()
+			select {
+			case currentOutput = <-ampB.Output:
+				//fmt.Println("got output b", currentOutput)
+				//ampB.EmptyInput()
+				break innerb
+			default:
+				//fmt.Println("no output yet b")
+			}
+		}
+		if ampB.Halted() {
+			fmt.Println("ampB really halted")
+			break outer
+		}
+		fmt.Println("ampC started", i3, currentOutput)
+		ampC.SetInput(i3)
+		ampC.SetInput(currentOutput)
+	innerc:
+		for !ampC.Halted() {
+			ampC.OneCycle()
+			select {
+			case currentOutput = <-ampC.Output:
+				//ampC.EmptyInput()
+				//fmt.Println("got output c", currentOutput)
+				break innerc
+			default:
+				//fmt.Println("no output yet c")
+			}
+		}
+		if ampC.Halted() {
+			fmt.Println("ampC really halted")
+			break outer
+		}
+		fmt.Println("ampD started", i4, currentOutput)
+		ampD.SetInput(i4)
+		ampD.SetInput(currentOutput)
+	innerd:
+		for !ampD.Halted() {
+			ampD.OneCycle()
+			select {
+			case currentOutput = <-ampD.Output:
+				//ampD.EmptyInput()
+				//fmt.Println("got output d", currentOutput)
+				break innerd
+			default:
+				//fmt.Println("no output yet d")
+			}
+		}
+		if ampD.Halted() {
+			fmt.Println("ampD really halted")
+			break outer
+		}
+		fmt.Println("ampE started", i5, currentOutput)
+		ampE.SetDebug(true)
+		ampE.SetInput(i5)
+		ampE.SetInput(currentOutput)
+	innere:
+		for !ampE.Halted() {
+			ampE.OneCycle()
+			select {
+			case currentOutput = <-ampE.Output:
+				//ampE.EmptyInput()
+				//fmt.Println("got output e", currentOutput)
+				break innere
+			default:
+				//fmt.Println("no output yet e")
+			}
+		}
+		if ampE.Halted() {
+			fmt.Println("ampE really halted")
+			break outer
+		}
+	}
+	fmt.Println("final output", currentOutput)
+	return currentOutput
+}
+
 func permutations(arr []int) [][]int {
 	var helper func([]int, int)
 	res := [][]int{}
@@ -196,5 +334,6 @@ func part1() {
 }
 
 func main() {
-	part1()
+	program := "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5"
+	part2_testit(9, 8, 7, 6, 5, program)
 }

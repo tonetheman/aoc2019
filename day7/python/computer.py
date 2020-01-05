@@ -16,8 +16,15 @@ class Computer:
         self.input = []
         self.memory = []
         self.output = None
+        self.debug = False
         for i in range(1024):
             self.memory.append(0)
+    def dbg(self,*args):
+        if not self.debug:
+            return
+        for a in args:
+            print(str(a),end=" ")
+        print()
     def loads(self,s):
         data = s.split(",")
         for i in range(len(data)):
@@ -32,7 +39,7 @@ class Computer:
         # print(tmp[3:5])
         return OpCode(int(tmp[3:5],base=10), int(tmp[2]), int(tmp[1]), int(tmp[0]))
     def handle_add(self,instr):
-        # print("DBG:ADD",instr)
+        self.dbg("DBG:ADD",instr)
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         arg3 = self.memory[self.ip+3]
@@ -53,7 +60,7 @@ class Computer:
         self.ip = self.ip + 4
 
     def handle_mult(self,instr):
-        # print("DBG:MULT",instr)
+        self.dbg("DBG:MULT",instr)
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         arg3 = self.memory[self.ip+3]
@@ -77,7 +84,7 @@ class Computer:
         self.input.append(input_value)
 
     def handle_input(self,instr):
-        print("DBG:INP")
+        self.dbg("DBG:INP")
         arg1 = self.memory[self.ip+1]
         if instr.p1mode!=0:
             print("ERR:p1mode is not 0 on input")
@@ -86,7 +93,7 @@ class Computer:
         self.ip = self.ip + 2
 
     def handle_output(self,instr):
-        print("DBG:OUT")
+        self.dbg("DBG:OUT")
         arg1 = self.memory[self.ip+1]
         if instr.p1mode == 0:
             self.output = self.memory[arg1]
@@ -95,10 +102,11 @@ class Computer:
         self.ip = self.ip + 2
 
     def handle_term(self,instr):
-        # print("DBG:halt called")
+        self.dbg("DBG:halt called")
         self.halt = True
 
     def handle_jmp_if_true(self,instr):
+        self.dbg("DBG:JMPTRUE")
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         realarg1 = -1
@@ -113,11 +121,12 @@ class Computer:
             realarg2 = arg2
 
         if realarg1 != 0:
-            self.ip = arg2
+            self.ip = realarg2
         else:
             self.ip = self.ip + 3
 
     def handle_jmp_if_false(self,instr):
+        # self.dbg("DBG:JMPFALSE")
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         realarg1 = -1
@@ -130,13 +139,14 @@ class Computer:
             realarg2 = self.memory[arg2]
         else:
             realarg2 = arg2
-
+        self.dbg("DBG:JMPFALSE",arg1,arg2,realarg1,realarg2)
         if realarg1 == 0:
-            self.ip = arg2
+            self.ip = realarg2
         else:
             self.ip = self.ip + 3
 
     def handle_less_than(self,instr):
+        self.dbg("DBG:handle_less")
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         arg3 = self.memory[self.ip+3]
@@ -165,10 +175,11 @@ class Computer:
         self.ip = self.ip + 4
     
     def handle_equals(self,instr):
+        self.dbg("handle_eq")
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         arg3 = self.memory[self.ip+3]
-        print("DBG:equals:args",arg1,arg2,arg3)
+        # print("DBG:equals:args",arg1,arg2,arg3)
         realarg1 = -1
         realarg2 = -1
         
@@ -185,9 +196,9 @@ class Computer:
             print("p3mode on 8 bad")
             sys.exit(0)
 
-        print("\tDBG:equals:realargs",realarg1,realarg2)
+        # print("\tDBG:equals:realargs",realarg1,realarg2)
         if realarg1 == realarg2:
-            print("\tDBG:writing a 1 to pos",arg3)
+            # print("\tDBG:writing a 1 to pos",arg3)
             self.memory[arg3] = 1
         else:
             self.memory[arg3] = 0
@@ -218,7 +229,7 @@ class Computer:
         elif instr.opcode == 99:
             self.handle_term(instr)
         else:
-            print("UNKNOWN instruction")
+            print("UNKNOWN instruction",self.ip,self.memory[self.ip:self.ip+8])
             sys.exit(-1)
 
     def check_memory(self,inc_mem):
@@ -307,13 +318,43 @@ def unit_test5():
 def unit_test6():
     comp = Computer()
     comp.loads("3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9")
-    comp.take_input(0)
+    comp.take_input(100)
+    while True:
+        print("-------------------")
+        print(comp)
+        comp.cycle()
+        if comp.halt:
+            print("halting normally")
+            break
+    print("comp output is",comp.output)
+
+def unit_test7():
+    comp = Computer()
+    comp.loads("3,3,1105,-1,9,1101,0,0,12,4,12,99,1")
+    comp.take_input(10)
     while True:
         comp.cycle()
         if comp.halt:
             print("halting normally")
             break
     print("comp output is",comp.output)
+
+def unit_test8():
+    def runone(input_number):
+        comp = Computer()
+        comp.loads("""3,21,1008,21,8,20,1005,20,22,107,8,21,20,1006,20,31,
+    1106,0,36,98,0,0,1002,21,125,20,4,20,1105,1,46,104,
+    999,1105,1,46,1101,1000,1,20,4,20,1105,1,46,98,99""")
+        comp.take_input(input_number)
+        while True:
+            comp.cycle()
+            if comp.halt:
+                print("halting normally")
+                break
+        print("comp output is",comp.output)
+    for i in range(10):
+        print("running",i)
+        runone(i)
 
 def all_unit_tests():
     unit_test1("1,9,10,3,2,3,11,0,99,30,40,50",[3500,9,10,70,2,3,11,0,99,30,40,50])
@@ -325,4 +366,4 @@ def all_unit_tests():
     unit_test2()
 
 # all_unit_tests()
-unit_test6()
+# unit_test8()

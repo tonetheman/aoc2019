@@ -228,7 +228,7 @@ class Computer:
         ts = ""
         ts = ts + "ip: " + str(self.ip)
         ts = ts + "\n"
-        for i in range(len(self.memory)):
+        for i in range(16):
             ts = ts + " " + str(self.memory[i])
         
         return ts
@@ -273,4 +273,5 @@ def all_unit_tests():
     unit_test1("1002,4,3,4,33",[1002,4,3,4,99])
     unit_test2()
 
-all_unit_tests()
+# all_unit_tests()
+unit_test2()

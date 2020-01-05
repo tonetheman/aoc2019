@@ -77,6 +77,7 @@ class Computer:
         self.input.append(input_value)
 
     def handle_input(self,instr):
+        print("DBG:INP")
         arg1 = self.memory[self.ip+1]
         if instr.p1mode!=0:
             print("ERR:p1mode is not 0 on input")
@@ -85,6 +86,7 @@ class Computer:
         self.ip = self.ip + 2
 
     def handle_output(self,instr):
+        print("DBG:OUT")
         arg1 = self.memory[self.ip+1]
         if instr.p1mode == 0:
             self.output = self.memory[arg1]
@@ -141,8 +143,7 @@ class Computer:
 
         realarg1 = -1
         realarg2 = -1
-        realarg3 = -1
-
+        
         if instr.p1mode ==0:
             realarg1 = self.memory[arg1]
         else:
@@ -151,15 +152,15 @@ class Computer:
             realarg2 = self.memory[arg2]
         else:
             realarg2 = arg2
-        if instr.p3mode == 0:
-            realarg3 = self.memory[arg3]
-        else:
-            realarg3 = arg3
+        
+        if instr.p3mode!=0:
+            print("p3mode not zero stopping")
+            sys.exit(-1)
 
         if realarg1 < realarg2:
-            self.memory[realarg3] = 1
+            self.memory[arg3] = 1
         else:
-            self.memory[realarg3] = 0
+            self.memory[arg3] = 0
 
         self.ip = self.ip + 4
     
@@ -170,8 +171,7 @@ class Computer:
         print("DBG:equals:args",arg1,arg2,arg3)
         realarg1 = -1
         realarg2 = -1
-        realarg3 = -1
-
+        
         if instr.p1mode ==0:
             realarg1 = self.memory[arg1]
         else:
@@ -180,16 +180,17 @@ class Computer:
             realarg2 = self.memory[arg2]
         else:
             realarg2 = arg2
-        if instr.p3mode == 0:
-            realarg3 = self.memory[arg3]
-        else:
-            realarg3 = arg3
-        print("\tDBG:equals:realargs",realarg1,realarg2,realarg3)
+
+        if instr.p3mode != 0:
+            print("p3mode on 8 bad")
+            sys.exit(0)
+
+        print("\tDBG:equals:realargs",realarg1,realarg2)
         if realarg1 == realarg2:
-            print("\tDBG:writing a 1 to pos",realarg3)
-            self.memory[realarg3] = 1
+            print("\tDBG:writing a 1 to pos",arg3)
+            self.memory[arg3] = 1
         else:
-            self.memory[realarg3] = 0
+            self.memory[arg3] = 0
 
         self.ip = self.ip + 4
 
@@ -216,6 +217,9 @@ class Computer:
             self.handle_equals(instr)
         elif instr.opcode == 99:
             self.handle_term(instr)
+        else:
+            print("UNKNOWN instruction")
+            sys.exit(-1)
 
     def check_memory(self,inc_mem):
         index = 0
@@ -249,21 +253,67 @@ def unit_test1(input,correct):
         print("failed")
 
 def unit_test2():
-    import time
     comp = Computer()
     comp.loads("3,9,8,9,10,9,4,9,99,-1,8")
+    print("loaded")
+    print("3,9,8,9,10,9,4,9,99,-1,8")
     comp.take_input(8)
     while True:
-        print(comp.ip)
+        print("-------------------")
         print(comp)
         comp.cycle()
         if comp.halt:
+            print("halting normally")
             break
-        time.sleep(1)
+    print("comp output is",comp.output)
     if comp.output==1:
         print("passed")
     else:
         print("failed")
+
+def unit_test3():
+    comp = Computer()
+    comp.loads("3,9,7,9,10,9,4,9,99,-1,8")
+    comp.take_input(7)
+    while True:
+        comp.cycle()
+        if comp.halt:
+            print("halting normally")
+            break
+    print("comp output is",comp.output)
+
+def unit_test4():
+    comp = Computer()
+    comp.loads("3,3,1108,-1,8,3,4,3,99")
+    comp.take_input(8)
+    while True:
+        comp.cycle()
+        if comp.halt:
+            print("halting normally")
+            break
+    print("comp output is",comp.output)
+
+def unit_test5():
+    comp = Computer()
+    comp.loads("3,3,1107,-1,8,3,4,3,99")
+    comp.take_input(7)
+    while True:
+        comp.cycle()
+        if comp.halt:
+            print("halting normally")
+            break
+    print("comp output is",comp.output)
+
+def unit_test6():
+    comp = Computer()
+    comp.loads("3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9")
+    comp.take_input(0)
+    while True:
+        comp.cycle()
+        if comp.halt:
+            print("halting normally")
+            break
+    print("comp output is",comp.output)
 
 def all_unit_tests():
     unit_test1("1,9,10,3,2,3,11,0,99,30,40,50",[3500,9,10,70,2,3,11,0,99,30,40,50])
@@ -275,4 +325,4 @@ def all_unit_tests():
     unit_test2()
 
 # all_unit_tests()
-unit_test2()
+unit_test6()

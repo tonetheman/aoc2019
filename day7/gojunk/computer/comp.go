@@ -14,6 +14,7 @@ type Computer struct {
 	input        chan int
 	Output       chan int
 	debug        bool
+	inputCount   int
 }
 
 type OpCode struct {
@@ -41,6 +42,9 @@ func MakeComputer() Computer {
 	computer.input = make(chan int, 20)
 	return computer
 }
+func (c *Computer) GetInputCount() int {
+	return c.inputCount
+}
 func (c *Computer) SetDebug(v bool) {
 	c.debug = v
 }
@@ -52,6 +56,7 @@ func (c *Computer) GetOutput() int {
 }
 func (c *Computer) SetInput(input int) {
 	// just send the input to the channel
+	c.inputCount++
 	c.input <- input
 }
 func (c *Computer) GetInstr(pos int) int {
@@ -94,10 +99,18 @@ func (c *Computer) OneCycle() {
 		if c.debug {
 			fmt.Println("DBG:ADD")
 		}
+		if currentInstruction.p3_mode != 0 {
+			panic("GOT AN ADD WITH INVALID STORE")
+		}
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
 		res := c.instructions[c.ip+3] // never immediate
-
+		if c.debug {
+			fmt.Println("\tDBG:ADD:args", arg1, arg2, res)
+			fmt.Println("\tDBG:ADD:modes",
+				currentInstruction.p1_mode, currentInstruction.p2_mode,
+				currentInstruction.p3_mode)
+		}
 		realarg1 := -1
 		if currentInstruction.p1_mode == 0 {
 			realarg1 = c.instructions[arg1]
@@ -110,14 +123,19 @@ func (c *Computer) OneCycle() {
 		} else {
 			realarg2 = arg2
 		}
-
 		realres := res
+		if c.debug {
+			fmt.Println("\tDBG:ADD:realargs", realarg1, realarg2, realres)
+		}
 		c.instructions[realres] = realarg1 + realarg2
 		c.ip += 4
 	}
 	if currentInstruction.opcode == 2 {
 		if c.debug {
 			fmt.Println("DBG:MULT")
+		}
+		if currentInstruction.p3_mode != 0 {
+			panic("GOT AN INVALID STORE ON MULT")
 		}
 		arg1 := c.instructions[c.ip+1]
 		arg2 := c.instructions[c.ip+2]
@@ -147,12 +165,23 @@ func (c *Computer) OneCycle() {
 		arg1 := c.instructions[c.ip+1]
 		if currentInstruction.p1_mode == 0 {
 			// read from the input channel here
-			c.instructions[arg1] = <-c.input
+			select {
+			case c.instructions[arg1] = <-c.input:
+				c.inputCount--
+				c.ip += 2
+				if c.debug {
+					fmt.Println("\tDBG:INPUT instr and val", arg1, c.instructions[arg1])
+				}
+			default:
+				// asked for a read but nothing was there
+				// need to block and do nothing
+				// the IP should remain where it is
+			}
+
 		} else {
 			panic("INVALID MODE INSTR: INPUT")
 		}
 
-		c.ip += 2
 	}
 	if currentInstruction.opcode == 4 {
 		if c.debug {
@@ -164,15 +193,16 @@ func (c *Computer) OneCycle() {
 			if c.debug {
 				fmt.Println("\tDBG:OUTPUT:p1mode0,", c.instructions[arg1])
 			}
+			c.ip += 2
 			c.Output <- c.instructions[arg1]
 		} else {
 			if c.debug {
 				fmt.Println("\tDBG:OUTPUT:p1mode1,", arg1)
 			}
+			c.ip += 2
 			c.Output <- arg1
 		}
-		//fmt.Println("OUTPUT SET TO:", c.output)
-		c.ip += 2
+
 	}
 	if currentInstruction.opcode == 5 {
 		// jmp if true
@@ -197,14 +227,17 @@ func (c *Computer) OneCycle() {
 			realarg2 = arg2
 		}
 		if c.debug {
-			fmt.Println("DBG:JMPTRUE:realargs", realarg1, realarg2)
+			fmt.Println("\tDBG:JMPTRUE:realargs", realarg1, realarg2)
 		}
 		if realarg1 != 0 {
 			if c.debug {
-				fmt.Println("DBG:JMPTRUE:arg1 was not zero setting ip to", realarg2)
+				fmt.Println("\tDBG:JMPTRUE:arg1 was not zero setting ip to", realarg2)
 			}
 			c.ip = realarg2
 		} else {
+			if c.debug {
+				fmt.Println("\tDBG:JMPTRUE:arg1 was zero setting ip+3")
+			}
 			c.ip += 3
 		}
 	}

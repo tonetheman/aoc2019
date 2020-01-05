@@ -111,11 +111,13 @@ func part2_testit(i1, i2, i3, i4, i5 int, program string) int {
 	ampA.ReadFromString(program)
 	ampAOutput := make(chan int, 1)
 	ampA.SetOutputChannel(ampAOutput)
+	ampA.SetDebug(true)
 
 	ampB := computer.MakeComputer()
 	ampB.ReadFromString(program)
 	ampBOutput := make(chan int, 1)
 	ampB.SetOutputChannel(ampBOutput)
+	ampB.SetDebug(true)
 
 	ampC := computer.MakeComputer()
 	ampC.ReadFromString(program)
@@ -135,14 +137,15 @@ func part2_testit(i1, i2, i3, i4, i5 int, program string) int {
 	currentOutput := 0
 outer:
 	for {
+		fmt.Println("TOP of loop-------------------------")
 		fmt.Println("ampA started", i1, currentOutput)
-		ampA.SetDebug(true)
 		ampA.SetInput(i1)
 		ampA.SetInput(currentOutput)
 		fmt.Println("added inputs into ampA")
+		fmt.Println(ampA)
 	innera:
 		for !ampA.Halted() {
-			fmt.Println("before one cycle ampA")
+			//fmt.Println("before one cycle ampA")
 			ampA.OneCycle()
 			select {
 			case currentOutput = <-ampA.Output:
@@ -160,7 +163,6 @@ outer:
 			break outer
 		}
 		fmt.Println("ampB started", i2, currentOutput)
-		ampB.SetDebug(true)
 		ampB.SetInput(i2)
 		ampB.SetInput(currentOutput)
 	innerb:
@@ -333,7 +335,75 @@ func part1() {
 
 }
 
-func main() {
+func notworkingpart2() {
 	program := "3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5"
 	part2_testit(9, 8, 7, 6, 5, program)
+}
+
+func test_input() {
+	comp := computer.MakeComputer()
+	program := "3,9,3,8,3,7,99,0,0,0,0"
+	comp.ReadFromString(program)
+	compOutput := make(chan int, 1)
+	comp.SetOutputChannel(compOutput)
+	comp.SetDebug(true)
+	comp.SetInput(10)
+	comp.SetInput(20)
+	comp.SetInput(30)
+	currentOutput := -1
+	for !comp.Halted() {
+		comp.OneCycle()
+		select {
+		case currentOutput = <-comp.Output:
+			//comp.EmptyInput()
+			//fmt.Println("got output e", currentOutput)
+			break
+		default:
+			//fmt.Println("no output yet e")
+		}
+	}
+	if comp.Halted() {
+		fmt.Println("comp really halted")
+	}
+	fmt.Println("comp input count", comp.GetInputCount())
+	fmt.Println(comp)
+	fmt.Println("currentOutput left at", currentOutput)
+}
+
+func test_jmpiftrue() {
+	comp := computer.MakeComputer()
+
+	// two inputs then a jmp if true
+	//program := "3,12,3,13,5,12,15,0,0,0,99,0,0,0,0,10"
+	program := "3,12,3,13,105,0,15,99,0,0,99,0,0,0,0,10"
+	comp.ReadFromString(program)
+	compOutput := make(chan int, 1)
+	comp.SetOutputChannel(compOutput)
+	comp.SetDebug(true)
+	comp.SetInput(10)
+	comp.SetInput(20)
+	comp.SetInput(30)
+	currentOutput := -1
+	for !comp.Halted() {
+		comp.OneCycle()
+		select {
+		case currentOutput = <-comp.Output:
+			//comp.EmptyInput()
+			//fmt.Println("got output e", currentOutput)
+			break
+		default:
+			//fmt.Println("no output yet e")
+		}
+	}
+	if comp.Halted() {
+		fmt.Println("comp really halted")
+	}
+	fmt.Println("comp input count", comp.GetInputCount())
+	fmt.Println(comp)
+	fmt.Println("currentOutput left at", currentOutput)
+
+}
+
+func main() {
+	notworkingpart2()
 }

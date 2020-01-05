@@ -167,7 +167,7 @@ class Computer:
         arg1 = self.memory[self.ip+1]
         arg2 = self.memory[self.ip+2]
         arg3 = self.memory[self.ip+3]
-
+        print("DBG:equals:args",arg1,arg2,arg3)
         realarg1 = -1
         realarg2 = -1
         realarg3 = -1
@@ -184,8 +184,9 @@ class Computer:
             realarg3 = self.memory[arg3]
         else:
             realarg3 = arg3
-
+        print("\tDBG:equals:realargs",realarg1,realarg2,realarg3)
         if realarg1 == realarg2:
+            print("\tDBG:writing a 1 to pos",realarg3)
             self.memory[realarg3] = 1
         else:
             self.memory[realarg3] = 0
